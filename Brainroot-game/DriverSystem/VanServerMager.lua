@@ -11,6 +11,13 @@ if not vanInput then
 	vanInput.Parent = eventsFolder
 end
 
+local vanFuelUpdate = eventsFolder:FindFirstChild("VanFuelUpdate")
+if not vanFuelUpdate then
+	vanFuelUpdate = Instance.new("RemoteEvent")
+	vanFuelUpdate.Name = "VanFuelUpdate"
+	vanFuelUpdate.Parent = eventsFolder
+end
+
 local SEAT_HEIGHT_IDLE = 0.3
 local SEAT_ROTATION_Y = math.rad(180)
 local CAMERA_BACK_OFFSET = -12
@@ -136,16 +143,103 @@ if seat:IsA("BasePart") then
 end
 
 -- Van driving state
+local MAX_SPEED = 38
+local REVERSE_SPEED = 16
+
+local MAX_FUEL = 100
+local FUEL_DRAIN_PER_SECOND = 4
+local FUEL_UPDATE_INTERVAL = 0.15
+
+local REFUEL_TO_FULL = true
+local REFUEL_AMOUNT = MAX_FUEL
+
 local vanState = {
 	currentDriver = nil,
 	throttle = 0,
 	steer = 0,
 	smoothSteer = 0,
-	speed = 0
+	speed = 0,
+	fuel = MAX_FUEL,
+	lastFuelUpdate = 0
 }
 
-local MAX_SPEED = 38
-local REVERSE_SPEED = 16
+local function sendFuelUpdate(player)
+	if not player then return end
+
+	vanFuelUpdate:FireClient(player, {
+		current = math.floor(vanState.fuel),
+		max = MAX_FUEL,
+		percent = math.clamp(vanState.fuel / MAX_FUEL, 0, 1)
+	})
+end
+
+local function refuelVan(player)
+	if not player then return end
+
+	-- Solo el conductor actual puede recargar esta van.
+	if vanState.currentDriver ~= player then
+		return
+	end
+
+	if vanState.fuel >= MAX_FUEL then
+		sendFuelUpdate(player)
+		return
+	end
+
+	if REFUEL_TO_FULL then
+		vanState.fuel = MAX_FUEL
+	else
+		vanState.fuel = math.min(MAX_FUEL, vanState.fuel + REFUEL_AMOUNT)
+	end
+
+	vanState.lastFuelUpdate = 0
+	sendFuelUpdate(player)
+
+	print("[VanServerManager] Van refueled by", player.Name, "| Fuel:", math.floor(vanState.fuel))
+end
+
+local connectedFuelPrompts = {}
+
+local function connectFuelPrompt(prompt)
+	if connectedFuelPrompts[prompt] then return end
+	connectedFuelPrompts[prompt] = true
+
+	prompt.ActionText = "Refuel"
+	prompt.ObjectText = "Gas Station"
+	prompt.HoldDuration = 3
+	prompt.RequiresLineOfSight = false
+
+	prompt.Triggered:Connect(function(player)
+		refuelVan(player)
+	end)
+
+	print("[VanServerManager] Connected fuel prompt:", prompt:GetFullName())
+end
+
+local function setupFuelStations()
+	for _, obj in workspace:GetDescendants() do
+		if obj:IsA("ProximityPrompt") then
+			local parentModel = obj:FindFirstAncestorWhichIsA("Model")
+
+			if parentModel and string.find(string.lower(parentModel.Name), "gasolina") then
+				connectFuelPrompt(obj)
+			end
+		end
+	end
+end
+
+setupFuelStations()
+
+workspace.DescendantAdded:Connect(function(obj)
+	if obj:IsA("ProximityPrompt") then
+		task.wait()
+
+		local parentModel = obj:FindFirstAncestorWhichIsA("Model")
+		if parentModel and string.find(string.lower(parentModel.Name), "gasolina") then
+			connectFuelPrompt(obj)
+		end
+	end
+end)
 
 local ACCELERATION = 32
 local BRAKE_ACCELERATION = 48
@@ -182,6 +276,7 @@ clickDetector.MouseClick:Connect(function(player)
 	seat:Sit(humanoid)
 
 	vanState.currentDriver = player
+	sendFuelUpdate(player)
 	print("[VanServerManager] Player entered van")
 end)
 
@@ -229,13 +324,38 @@ RunService.Heartbeat:Connect(function(dt)
 	end
 
 	local currentPivot = van:GetPivot()
+	local hasFuel = vanState.fuel > 0
 
 	-- Target speed based on W/S.
 	local targetSpeed = 0
-	if vanState.throttle > 0 then
-		targetSpeed = MAX_SPEED * vanState.throttle
-	elseif vanState.throttle < 0 then
-		targetSpeed = REVERSE_SPEED * vanState.throttle
+	if hasFuel then
+		if vanState.throttle > 0 then
+			targetSpeed = MAX_SPEED * vanState.throttle
+		elseif vanState.throttle < 0 then
+			targetSpeed = REVERSE_SPEED * vanState.throttle
+		end
+	end
+
+	if hasFuel and vanState.throttle ~= 0 then
+		local drainMultiplier = 1
+
+		-- Reverse consumes less because it is slower / less useful movement.
+		if vanState.throttle < 0 then
+			drainMultiplier = 0.45
+		end
+
+		-- Turning while moving consumes slightly less to avoid punishing steering.
+		if math.abs(vanState.steer) > 0 then
+			drainMultiplier *= 0.85
+		end
+
+		vanState.fuel = math.max(0, vanState.fuel - FUEL_DRAIN_PER_SECOND * drainMultiplier * dt)
+
+		vanState.lastFuelUpdate += dt
+		if vanState.lastFuelUpdate >= FUEL_UPDATE_INTERVAL then
+			vanState.lastFuelUpdate = 0
+			sendFuelUpdate(vanState.currentDriver)
+		end
 	end
 
 	-- Smooth acceleration / braking / friction.

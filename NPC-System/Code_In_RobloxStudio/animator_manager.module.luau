@@ -1,7 +1,19 @@
 --[[
 ================================================================================
-  AnimationManager.lua  —  NPC Animation Module
+  AnimationManager.lua  —  NPC Animation Module (v2)
 ================================================================================
+
+  CAMBIOS vs v1
+  -------------
+  • Bug fix: el sistema de fallbackToken usaba comparación de tabla ({})
+    lo que hacía que el fallback NUNCA se cancelara correctamente. Ahora
+    usa un contador numérico incremental — cancelación garantizada.
+  • Nueva función StopGunAnims() — detiene GunIdle y GunWalk limpiamente
+    cuando el arma se holstera. NpcScript la llama desde holsterWeapon().
+  • Fix en la cadena Ziptie→ZipTieIdle: si StopAll() se llama mientras
+    la cadena está pendiente, ZipTieIdle ya no se inicia incorrectamente.
+  • PlayMovement() ahora acepta forceRestart correctamente también cuando
+    la animación anterior era de arma (GunIdle/GunWalk) y se cambia a Walk.
 
   OVERVIEW
   --------

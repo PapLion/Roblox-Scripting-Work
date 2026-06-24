@@ -122,7 +122,18 @@ local CFG = {
 	SEARCH_POINT_WAIT    = 1.5,    -- pausa en cada punto antes de continuar
 
 	-- ── PRE-FIRE ─────────────────────────────────────────────────────────────
-	PREFIRE_NOISE        = 4,      -- radio de dispersión aleatoria en studs
+	PREFIRE_NOISE        = 4,      -- radio de dispersión aleatoria en studs,
+
+	-- ── REALISM / POLISH SAFE LAYER ─────────────────────────────────────────
+	-- Capa no destructiva: mejora feel visual/audio sin cambiar el core AI.
+	ROTATION_SMOOTHNESS   = 10,     -- mayor = gira más rápido, menor = más humano/suave
+	GUN_POSE_RECOVER_TIME = 0.12,   -- tiempo para volver a GunIdle luego de disparar
+	FOOTSTEP_INTERVAL_WALK = 0.42,
+	FOOTSTEP_INTERVAL_RUN  = 0.30,
+	ARREST_FREEZE_TIME    = 2.0,    -- inmovilización breve del jugador durante arrest animation
+	ARREST_ALIGN_DISTANCE = 3.0,    -- reservado para ajustes futuros de posicionamiento
+	CONFISCATE_WEAPONS    = true,   -- mueve Tools de arma a ReplicatedStorage/NPCConfiscatedWeapons
+	WEAPON_KEYWORDS       = { "gun", "pistol", "rifle", "shotgun", "weapon", "knife", "bat" },
 }
 CFG.MELEE_CHASE_DIST = CFG.ATTACK_RANGE + 6
 
@@ -241,11 +252,15 @@ local function enableRotation(enabled)
 	end
 end
 
-RS.Heartbeat:Connect(function()
+RS.Heartbeat:Connect(function(dt)
 	if not rotEnabled or not rotTargetPos then return end
 	local dir = Vector3.new(rotTargetPos.X, HRP.Position.Y, rotTargetPos.Z) - HRP.Position
 	if dir.Magnitude < 0.5 then return end
-	bodyGyro.CFrame = CFrame.lookAt(HRP.Position, HRP.Position + dir)
+
+	-- Giro suavizado: evita lock-on instantáneo/robótico sin tocar la lógica de detección.
+	local desired = CFrame.lookAt(HRP.Position, HRP.Position + dir)
+	local alpha = 1 - math.exp(-CFG.ROTATION_SMOOTHNESS * dt)
+	bodyGyro.CFrame = bodyGyro.CFrame:Lerp(desired, math.clamp(alpha, 0, 1))
 end)
 
 enableRotation(false)
@@ -333,6 +348,106 @@ local AnimManager   = require(NPC:WaitForChild("AnimationManager"))
 local AudioManager  = require(NPC:WaitForChild("AudioManager"))
 local WeaponManager = require(NPC:WaitForChild("WeaponManager"))
 WeaponManager:Holster()
+
+-- ── ANIMATION / AUDIO SAFE WRAPPERS ──────────────────────────────────────────
+-- No asumimos que todos los slots existan. Si falta GunWalk/Search/GunIdle/etc.,
+-- hacemos fallback a un slot básico para evitar errores y mantener producción estable.
+local MOVEMENT_FALLBACKS = {
+	GunIdle = "Idle",
+	GunWalk = "Walk",
+	Search = "Walk",
+	SearchGun = "GunWalk",
+	ArrestedIdle = "Idle",
+	SurrenderIdle = "Idle",
+}
+
+local ACTION_FALLBACKS = {
+	Surrender = nil,
+	Ziptie = nil,
+	Confiscate = nil,
+	SearchBody = nil,
+}
+
+local function playMovementSafe(name)
+	local ok = pcall(function()
+		AnimManager:PlayMovement(name)
+	end)
+	if ok then return true end
+
+	local fallback = MOVEMENT_FALLBACKS[name]
+	if fallback then
+		return pcall(function()
+			AnimManager:PlayMovement(fallback)
+		end)
+	end
+	return false
+end
+
+local function playActionSafe(name)
+	local ok = pcall(function()
+		AnimManager:PlayAction(name)
+	end)
+	if ok then return true end
+
+	local fallback = ACTION_FALLBACKS[name]
+	if fallback then
+		return pcall(function()
+			AnimManager:PlayAction(fallback)
+		end)
+	end
+	return false
+end
+
+local function playAudioSafe(name)
+	pcall(function()
+		AudioManager:Play(name)
+	end)
+end
+
+local gunPoseToken = 0
+local function recoverGunPose(delaySeconds)
+	if not weaponDrawn then return end
+	gunPoseToken += 1
+	local token = gunPoseToken
+	task.delay(delaySeconds or CFG.GUN_POSE_RECOVER_TIME, function()
+		if token ~= gunPoseToken then return end
+		if not weaponDrawn then return end
+		if state == STATE.DEAD or state == STATE.SURRENDER or state == STATE.ARRESTED then return end
+		if AnimManager.IsPlayingAction and AnimManager:IsPlayingAction() then return end
+		playMovementSafe("GunIdle")
+	end)
+end
+
+-- Footsteps server-side, lightweight and throttled. Usa un Sound existente llamado
+-- "FootstepSound" si está en el NPC; si no, crea un fallback seguro.
+local footstepSound = NPC:FindFirstChild("FootstepSound", true)
+if not footstepSound then
+	footstepSound = Instance.new("Sound")
+	footstepSound.Name = "FootstepSound"
+	footstepSound.SoundId = NPC:GetAttribute("FootstepSoundId") or "rbxasset://sounds/action_footsteps_plastic.mp3"
+	footstepSound.Volume = tonumber(NPC:GetAttribute("FootstepVolume")) or 0.35
+	footstepSound.RollOffMaxDistance = 45
+	footstepSound.Parent = HRP
+end
+
+local lastFootstepAt = 0
+RS.Heartbeat:Connect(function()
+	if state == STATE.DEAD or state == STATE.SURRENDER or state == STATE.ARRESTED or state == STATE.STUNNED then return end
+	if Humanoid.FloorMaterial == Enum.Material.Air then return end
+
+	local flatVelocity = Vector3.new(HRP.AssemblyLinearVelocity.X, 0, HRP.AssemblyLinearVelocity.Z)
+	local speed = flatVelocity.Magnitude
+	if speed < 2 then return end
+
+	local interval = speed >= (CFG.RUN_SPEED - 1) and CFG.FOOTSTEP_INTERVAL_RUN or CFG.FOOTSTEP_INTERVAL_WALK
+	if tick() - lastFootstepAt < interval then return end
+	lastFootstepAt = tick()
+
+	pcall(function()
+		footstepSound.PlaybackSpeed = math.clamp(speed / CFG.WALK_SPEED, 0.85, 1.25)
+		footstepSound:Play()
+	end)
+end)
 
 -- ── FIX ACCESORIOS DE CHEST / BACKPAGE ───────────────────────────────────────
 -- Chest y Backpage son Models que contienen un Accessory (con Handle adentro).
@@ -506,6 +621,9 @@ local function enterState(newState)
 		searchPointActive = false
 	end
 	state = newState
+	if newState ~= STATE.SURRENDER and newState ~= STATE.ARRESTED and newState ~= STATE.DEAD then
+		Humanoid.AutoRotate = true
+	end
 	cancelMove()
 end
 
@@ -619,11 +737,11 @@ local function moveTo(pos, running, gunMode, myToken)
 	Humanoid.WalkSpeed = running and CFG.RUN_SPEED or CFG.WALK_SPEED
 
 	if gunMode and weaponDrawn then
-		AnimManager:PlayMovement("Walk")
+		playMovementSafe("GunWalk")
 	elseif running then
-		AnimManager:PlayMovement("Run")
+		playMovementSafe("Run")
 	else
-		AnimManager:PlayMovement("Walk")
+		playMovementSafe("Walk")
 	end
 
 	local path
@@ -673,7 +791,7 @@ local function moveTo(pos, running, gunMode, myToken)
 	if myToken == moveToken and state == STATE.PATROL then
 		currentPatrolPoint  = nil
 		lastPatrolArrival   = tick()
-		AnimManager:PlayMovement("Idle")
+		playMovementSafe("Idle")
 	end
 end
 
@@ -690,7 +808,7 @@ local function startFlee(myToken)
 	local path     = computePath(HRP.Position, fleePos, "flee")
 	if state ~= STATE.FLEE or myToken ~= moveToken then return end
 	Humanoid.WalkSpeed = CFG.RUN_SPEED * 1.2
-	AnimManager:PlayMovement("Run")
+	playMovementSafe("Run")
 	if not path then
 		Humanoid:MoveTo(fleePos)
 		return
@@ -710,7 +828,7 @@ local function startFlee(myToken)
 		if not reached then conn:Disconnect() end
 	end
 	if myToken == moveToken and state == STATE.FLEE then
-		AnimManager:PlayMovement("Idle")
+		playMovementSafe("Idle")
 	end
 end
 
@@ -767,8 +885,8 @@ local function drawWeapon()
 	weaponDrawn = true
 	WeaponManager:Equip()
 	pcall(function()
-		AnimManager:PlayAction("Draw")
-		AudioManager:Play("Draw")
+		playActionSafe("Draw")
+		playAudioSafe("Draw")
 	end)
 end
 
@@ -953,8 +1071,8 @@ local function tryReload()
 		SHOTS_PER_RELOAD = math.random(6, 12)
 		lastReload       = tick()
 		isBusy           = true
-		AnimManager:PlayAction("Reload")
-		AudioManager:Play("Reload")
+		playActionSafe("Reload")
+		playAudioSafe("Reload")
 		task.delay(1.2, function() isBusy = false end)
 		return true
 	end
@@ -973,10 +1091,11 @@ local function shootSemi(aimPos)
 	lastShot = tick()
 	if tryReload() then return end
 	shotCount += 1
-	AnimManager:PlayAction("Shoot")
-	AudioManager:Play("Shoot")
+	playActionSafe("Shoot")
+	playAudioSafe("Shoot")
 	local muzzle = getMuzzlePos()
 	fireBullet(muzzle, aimPos - muzzle, CFG.BULLET_DAMAGE)
+	recoverGunPose()
 end
 
 --[[
@@ -1015,8 +1134,8 @@ local function shootAuto(aimPos)
 			autoBurstCount += 1
 			lastAutoBullet  = tick()
 
-			AnimManager:PlayAction("Shoot")
-			AudioManager:Play("Shoot")
+			playActionSafe("Shoot")
+			playAudioSafe("Shoot")
 			local muzzle = getMuzzlePos()
 			-- Pequeña dispersión por bala para que las ráfagas no sean láser
 			local noise = Vector3.new(
@@ -1025,6 +1144,7 @@ local function shootAuto(aimPos)
 				math.random(-1, 1) * 0.5
 			)
 			fireBullet(muzzle, (aimPos + noise) - muzzle, CFG.BULLET_DAMAGE)
+				recoverGunPose()
 
 			if tryReload() then break end
 		end
@@ -1048,8 +1168,8 @@ local function shootSpread(aimPos)
 	if tryReload() then return end
 	shotCount += 1
 
-	AnimManager:PlayAction("Shoot")
-	AudioManager:Play("Shoot")
+	playActionSafe("Shoot")
+	playAudioSafe("Shoot")
 
 	local muzzle       = getMuzzlePos()
 	local baseDir      = (aimPos - muzzle).Unit
@@ -1074,6 +1194,7 @@ local function shootSpread(aimPos)
 			+ actualUp * (math.sin(angle) * radius)
 		fireBullet(muzzle, offsetDir, pelletDamage)
 	end
+	recoverGunPose()
 end
 
 --[[
@@ -1106,8 +1227,8 @@ end
 local function melee(char)
 	if tick() - lastMelee < CFG.MELEE_COOLDOWN then return end
 	lastMelee = tick()
-	AnimManager:PlayAction("Melee")
-	AudioManager:Play("Melee")
+	playActionSafe("Melee")
+	playAudioSafe("Melee")
 	task.wait(0.35)
 	local root = char:FindFirstChild("HumanoidRootPart")
 	if not root then return end
@@ -1168,7 +1289,7 @@ end
 local function stopAndIdleCombatMovement(idleName)
 	Humanoid:MoveTo(HRP.Position)
 	if idleName then
-		AnimManager:PlayMovement(idleName)
+		playMovementSafe(idleName)
 	end
 end
 
@@ -1234,7 +1355,7 @@ local function startCombatChase(myToken)
 
 			Humanoid.WalkSpeed = speed
 			if not AnimManager:IsPlayingAction() then
-				AnimManager:PlayMovement(movementName)
+				playMovementSafe(movementName)
 			end
 
 			if visible then
@@ -1310,6 +1431,7 @@ local function doSurrender()
 	cancelMove()
 	state = STATE.SURRENDER
 	isBusy = true
+	Humanoid.AutoRotate = false
 
 	weaponDrawn = false
 	AnimManager:StopGunAnims()
@@ -1318,23 +1440,124 @@ local function doSurrender()
 	AnimManager:StopAll()
 	Humanoid.WalkSpeed = 0
 	Humanoid:MoveTo(HRP.Position)
-	AnimManager:PlayAction("Surrender")
-	AudioManager:Play("Surrender")
+	playActionSafe("Surrender")
+	playAudioSafe("Surrender")
 	NPC:SetAttribute("Surrendered", true)
 end
 
 local function startArrestFollow() end
 
-local function doArrest()
+local function isWeaponTool(tool)
+	if not tool or not tool:IsA("Tool") then return false end
+	if tool:GetAttribute("IsWeapon") == true then return true end
+	local lowerName = string.lower(tool.Name)
+	for _, keyword in ipairs(CFG.WEAPON_KEYWORDS) do
+		if string.find(lowerName, string.lower(keyword), 1, true) then
+			return true
+		end
+	end
+	return false
+end
+
+local function confiscatePlayerWeapons(player)
+	if not CFG.CONFISCATE_WEAPONS or not player then return 0 end
+
+	local rootFolder = game.ReplicatedStorage:FindFirstChild("NPCConfiscatedWeapons")
+	if not rootFolder then
+		rootFolder = Instance.new("Folder")
+		rootFolder.Name = "NPCConfiscatedWeapons"
+		rootFolder.Parent = game.ReplicatedStorage
+	end
+
+	local playerFolder = rootFolder:FindFirstChild(tostring(player.UserId))
+	if not playerFolder then
+		playerFolder = Instance.new("Folder")
+		playerFolder.Name = tostring(player.UserId)
+		playerFolder.Parent = rootFolder
+	end
+
+	local count = 0
+	local function scan(container)
+		if not container then return end
+		for _, child in ipairs(container:GetChildren()) do
+			if isWeaponTool(child) then
+				child.Parent = playerFolder
+				count += 1
+			end
+		end
+	end
+
+	scan(player.Character)
+	scan(player:FindFirstChildOfClass("Backpack"))
+	NPC:SetAttribute("ConfiscatedWeaponCount", count)
+	return count
+end
+
+local function freezePlayerForArrest(player, duration)
+	if not player or not player.Character then return end
+	local char = player.Character
+	local hum = char:FindFirstChildOfClass("Humanoid")
+	local root = char:FindFirstChild("HumanoidRootPart")
+	if not hum or not root then return end
+
+	local oldWalkSpeed = hum.WalkSpeed
+	local oldJumpPower = hum.JumpPower
+	local oldJumpHeight = hum.JumpHeight
+	local oldAutoRotate = hum.AutoRotate
+
+	hum.WalkSpeed = 0
+	hum.JumpPower = 0
+	hum.JumpHeight = 0
+	hum.AutoRotate = false
+	root.AssemblyLinearVelocity = Vector3.zero
+
+	task.delay(duration or CFG.ARREST_FREEZE_TIME, function()
+		if not hum.Parent then return end
+		hum.WalkSpeed = oldWalkSpeed
+		hum.JumpPower = oldJumpPower
+		hum.JumpHeight = oldJumpHeight
+		hum.AutoRotate = oldAutoRotate
+	end)
+end
+
+local function alignArrestWithPlayer(player)
+	if not player or not player.Character then return end
+	local playerRoot = player.Character:FindFirstChild("HumanoidRootPart")
+	if not playerRoot then return end
+
+	-- Same facing direction as player, but keep NPC at its current grounded position.
+	local look = playerRoot.CFrame.LookVector
+	local flatLook = Vector3.new(look.X, 0, look.Z)
+	if flatLook.Magnitude < 0.01 then return end
+	HRP.CFrame = CFrame.lookAt(HRP.Position, HRP.Position + flatLook.Unit)
+	bodyGyro.CFrame = HRP.CFrame
+end
+
+local function doArrest(arrestingPlayer)
 	if not surrendered or arrested then return false end
 	arrested = true
 	state    = STATE.ARRESTED
 	isBusy   = false
+	enableRotation(false)
+	alignArrestWithPlayer(arrestingPlayer)
+	freezePlayerForArrest(arrestingPlayer, CFG.ARREST_FREEZE_TIME)
+
 	AnimManager:StopAll()
+	Humanoid.AutoRotate = false
 	Humanoid.WalkSpeed = 0
 	Humanoid:MoveTo(HRP.Position)
-	AnimManager:PlayAction("Ziptie")
-	AudioManager:Play("Ziptie")
+	playActionSafe("Ziptie")
+	playAudioSafe("Ziptie")
+
+	task.delay(0.75, function()
+		if not arrested then return end
+		playActionSafe("SearchBody")
+		local confiscated = confiscatePlayerWeapons(arrestingPlayer)
+		if confiscated > 0 then
+			playActionSafe("Confiscate")
+		end
+	end)
+
 	NPC:SetAttribute("Arrested", true)
 	task.delay(5, function() if arrested then startArrestFollow() end end)
 	local e = game.ReplicatedStorage:FindFirstChild("NPCArrested")
@@ -1364,8 +1587,8 @@ prompt.HoldDuration, prompt.RequiresLineOfSight, prompt.Enabled, prompt.Parent =
 NPC:GetAttributeChangedSignal("Surrendered"):Connect(function()
 	prompt.Enabled = NPC:GetAttribute("Surrendered") == true and not arrested
 end)
-prompt.Triggered:Connect(function(_player)
-	if surrendered then doArrest(); prompt.Enabled = false end
+prompt.Triggered:Connect(function(player)
+	if surrendered then doArrest(player); prompt.Enabled = false end
 end)
 
 -- ── INTIMIDACIÓN ──────────────────────────────────────────────────────────────
@@ -1400,8 +1623,8 @@ local function onFlashbang()
 	Humanoid.WalkSpeed = 0
 	Humanoid:MoveTo(HRP.Position)
 	AnimManager:StopAll()
-	AnimManager:PlayAction("FlashbangReaction")
-	AudioManager:Play("Flashbanged")
+	playActionSafe("FlashbangReaction")
+	playAudioSafe("Flashbanged")
 	task.delay(5, function()
 		if state ~= STATE.STUNNED then return end
 		NPC:SetAttribute("Flashbanged", false)
@@ -1430,7 +1653,7 @@ local function onFlashbang()
 			setTarget(nil)
 			holsterWeapon()
 			state  = STATE.PATROL
-			AnimManager:PlayMovement("Idle")
+			playMovementSafe("Idle")
 		end
 	end)
 end
@@ -1662,7 +1885,7 @@ Humanoid.HealthChanged:Connect(function(hp)
 	end
 	if damageTaken > 0 and tick() - lastDamageReaction > 0.3 then
 		lastDamageReaction = tick()
-		AudioManager:Play("Shot")
+		playAudioSafe("Shot")
 		applyDamageStagger()
 	end
 	prevHealth = hp
@@ -1720,7 +1943,7 @@ RS.Heartbeat:Connect(function(dt)
 				detectionCooldown  = 0
 				lastDetectedPlayer = nil
 				enableRotation(true)
-				AudioManager:Play("Alert")
+				playAudioSafe("Alert")
 				state = STATE.ALERT
 			else
 				lastDetectedPlayer = v
@@ -1732,7 +1955,7 @@ RS.Heartbeat:Connect(function(dt)
 		if spawnActive then return end
 
 		if tick() - lastPatrolArrival < CFG.PATROL_WAIT then
-			AnimManager:PlayMovement("Idle")
+			playMovementSafe("Idle")
 			return
 		end
 
@@ -1756,7 +1979,7 @@ RS.Heartbeat:Connect(function(dt)
 
 		if patrolWaitTimer < CFG.PATROL_WAIT then
 			patrolWaitTimer += dt
-			AnimManager:PlayMovement("Idle")
+			playMovementSafe("Idle")
 			return
 		end
 
@@ -1764,7 +1987,7 @@ RS.Heartbeat:Connect(function(dt)
 		if pt then
 			spawnMove(pt, false, false)
 		else
-			AnimManager:PlayMovement("Idle")
+			playMovementSafe("Idle")
 		end
 
 		-- ── ALERT ────────────────────────────────────────────────────────────────
@@ -1777,14 +2000,14 @@ RS.Heartbeat:Connect(function(dt)
 			enableRotation(false)
 			holsterWeapon()
 			state = STATE.PATROL
-			AnimManager:PlayMovement("Idle")
+			playMovementSafe("Idle")
 			return
 		end
 		setTarget(v)
 		local tr = v:FindFirstChild("HumanoidRootPart")
 
 		if not spawnActive then
-			AnimManager:PlayMovement("Idle")
+			playMovementSafe("Idle")
 		end
 		if tr then setRotationTarget(tr.Position) end
 
@@ -1805,7 +2028,7 @@ RS.Heartbeat:Connect(function(dt)
 				enterState(STATE.FLEE)
 			elseif stateDecision.willFight then
 				enterState(STATE.COMBAT)
-				AudioManager:Play("Aggro")
+				playAudioSafe("Aggro")
 				outOfRangeTimer = 0
 				loseSightTimer  = 0
 				lastSeenPos     = tr and tr.Position or nil
@@ -2053,7 +2276,7 @@ RS.Heartbeat:Connect(function(dt)
 			})
 			stopCombatChase()
 			enterState(STATE.COMBAT)
-			AudioManager:Play("Aggro")
+			playAudioSafe("Aggro")
 			combatHadLOS = true
 			return
 		end
@@ -2108,7 +2331,7 @@ RS.Heartbeat:Connect(function(dt)
 				-- Mirar hacia el punto mientras nos movemos
 				enableRotation(true)
 				setRotationTarget(dest)
-				AnimManager:PlayMovement(weaponDrawn and "GunWalk" or "Walk")
+				playMovementSafe(weaponDrawn and "SearchGun" or "Search")
 				Humanoid.WalkSpeed = CFG.WALK_SPEED
 
 				local myMoveToken = moveToken
@@ -2138,7 +2361,7 @@ RS.Heartbeat:Connect(function(dt)
 					if state == STATE.SEARCH and moveToken == myMoveToken then
 						searchPointActive = false
 						searchArrivalTime = tick()
-						AnimManager:PlayMovement("Idle")
+						playMovementSafe("Idle")
 					end
 				end)
 			end
@@ -2183,7 +2406,7 @@ RS.Heartbeat:Connect(function(dt)
 			meleeChasing = false
 			stopCombatChase()
 			Humanoid:MoveTo(HRP.Position)
-			AnimManager:PlayMovement("Idle")
+			playMovementSafe("Idle")
 		elseif dist > outerThreshold then
 			meleeChasing = true
 			if tick() < combatChaseCooldownUntil then

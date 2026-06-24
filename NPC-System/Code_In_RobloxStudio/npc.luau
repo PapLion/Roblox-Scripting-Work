@@ -333,6 +333,8 @@ local AnimManager   = require(NPC:WaitForChild("AnimationManager"))
 local AudioManager  = require(NPC:WaitForChild("AudioManager"))
 local WeaponManager = require(NPC:WaitForChild("WeaponManager"))
 WeaponManager:Holster()
+local FootstepManager = require(NPC:WaitForChild("FootstepManager"))
+FootstepManager:Start()
 
 -- ── FIX ACCESORIOS DE CHEST / BACKPAGE ───────────────────────────────────────
 -- Chest y Backpage son Models que contienen un Accessory (con Handle adentro).

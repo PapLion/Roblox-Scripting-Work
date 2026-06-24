@@ -80,7 +80,7 @@ local CFG = {
 	SURRENDER_HP_PCT     = 0.25,
 	PATROL_WAIT          = 3,
 	PATROL_BLOCKED_MAX   = 3,
-	PATH_RECALC_INTERVAL = 1.5,
+	PATH_RECALC_INTERVAL = 0.6,
 	WAYPOINT_TIMEOUT     = 1.5,
 	ALERT_EVAL_TIME      = 0.7,
 	IDLE_LOOK_INTERVAL   = 4,
@@ -88,16 +88,6 @@ local CFG = {
 	OUT_OF_RANGE_BUFFER  = 4.0,
 	ROTATION_SPEED_DEG   = 280,
 	MELEE_CHASE_DIST     = 0,
-	COMBAT_GOAL_DELTA    = 8,
-	COMBAT_STUCK_TIME    = 1.8,
-	COMBAT_STUCK_EPS     = 1.0,
-	BEHAVIOR_ROLE_LOCK_TIME     = 8,
-	BEHAVIOR_ROLE_REEVAL_COOLDOWN = 4,
-	RUSHER_SPEED_MULT    = 1.08,
-	RUSHER_CHASE_FAIL_TIME = 2.5,
-	DEBUG_PATHING        = false,
-	SENSE_LOS_INTERVAL   = 0.18,
-	COMBAT_LOS_INTERVAL  = 0.12,
 
 	-- ── WEAPON TYPE ──────────────────────────────────────────────────────────
 	-- Leído desde atributo NPC "WeaponType". Valores: "Semi", "Auto", "Spread".
@@ -179,7 +169,6 @@ local alertEvalTimer      = 0
 local alertEvalStarted    = false
 local originPosition      = HRP.Position
 local patrolRadius        = NPC:GetAttribute("PatrolRadius") or 40
-local combatHadLOS        = false
 
 local currentPatrolPoint    = nil
 local patrolBlockedAttempts = 0
@@ -189,8 +178,6 @@ local nextPathReady         = false
 local nextPathTarget        = nil
 
 local meleeChasing = false
-local combatChaseCooldownUntil = 0
-local losCache = setmetatable({}, { __mode = "k" })
 
 -- ── VARIABLES DE ARMA AUTOMÁTICA ─────────────────────────────────────────────
 local lastAutoBullet  = 0   -- tick() del último disparo individual en modo Auto
@@ -202,18 +189,6 @@ local searchIndex        = 0    -- índice actual en searchPoints
 local searchTimer        = 0    -- acumulador de tiempo en estado SEARCH
 local searchPointActive  = false -- true mientras spawnMove hacia un punto está activo
 local searchArrivalTime  = 0    -- tick() en que se llegó al punto actual
-
--- ── NAVEGACIÓN DE COMBATE ───────────────────────────────────────────────────
-local maybeReevaluateBehaviorRole
-local pathComputeInProgress    = false
-local lastPathComputeAt        = -math.huge
-local rusherChaseStartAt       = 0
-local rusherLastDistance       = nil
-local rusherStallStartAt       = 0
-
--- ── REEVALUACIÓN DE ROL ──────────────────────────────────────────────────────
-local behaviorRoleLockUntil    = 0
-local behaviorRoleCooldownUntil = 0
 
 -- ── ROTACIÓN SUAVE ────────────────────────────────────────────────────────────
 local bodyGyro = Instance.new("BodyGyro")
@@ -327,7 +302,6 @@ local myBehaviorRole = assignBehaviorRole()
 CFG.WEAPON_TYPE      = myWeaponType
 
 print("[NPC] WeaponType:", myWeaponType, "| BehaviorRole:", myBehaviorRole)
-behaviorRoleLockUntil = tick() + CFG.BEHAVIOR_ROLE_LOCK_TIME
 
 local AnimManager   = require(NPC:WaitForChild("AnimationManager"))
 local AudioManager  = require(NPC:WaitForChild("AudioManager"))
@@ -410,46 +384,23 @@ local function shouldFleeFromCombat(d)
 end
 
 -- ── HELPERS DE DETECCIÓN ──────────────────────────────────────────────────────
-local function canSee(char, maxAge)
+local function canSee(char)
 	local root = char:FindFirstChild("HumanoidRootPart")
 	if not root then return false end
-	local now = tick()
-	local ttl = maxAge or CFG.SENSE_LOS_INTERVAL
-	local cache = losCache[char]
-	local useCache = ttl > 0
-	if useCache and cache and cache.root == root and cache.expiresAt and cache.expiresAt > now then
-		return cache.visible
-	end
 	local origin, dest = Head.Position, root.Position
 	local dist = (dest - origin).Magnitude
-	if dist > getEffectiveSightRange() then
-		if useCache then
-			losCache[char] = { root = root, visible = false, expiresAt = now + ttl }
-		end
-		return false
-	end
+	if dist > getEffectiveSightRange() then return false end
 	local angle = math.deg(math.acos(math.clamp(Head.CFrame.LookVector:Dot((dest - origin).Unit), -1, 1)))
-	if angle > CFG.SIGHT_FOV / 2 then
-		if useCache then
-			losCache[char] = { root = root, visible = false, expiresAt = now + ttl }
-		end
-		return false
-	end
+	if angle > CFG.SIGHT_FOV / 2 then return false end
 	local params = RaycastParams.new()
 	params.FilterDescendantsInstances = { NPC, char }
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	local hit = workspace:Raycast(origin, dest - origin, params)
-	local visible = true
 	if hit then
 		local hitModel = hit.Instance:FindFirstAncestorOfClass("Model")
-		if hitModel ~= char then
-			visible = false
-		end
+		if hitModel ~= char then return false end
 	end
-	if useCache then
-		losCache[char] = { root = root, visible = visible, expiresAt = now + ttl }
-	end
-	return visible
+	return true
 end
 
 local function isTargetValid(char)
@@ -471,7 +422,7 @@ local function nearestVisiblePlayer()
 		local r = c:FindFirstChild("HumanoidRootPart")
 		if h and h.Health > 0 and r then
 			local d = (r.Position - HRP.Position).Magnitude
-			if d < bestD and canSee(c, CFG.SENSE_LOS_INTERVAL) then best, bestD = c, d end
+			if d < bestD and canSee(c) then best, bestD = c, d end
 		end
 	end
 	return best
@@ -495,9 +446,6 @@ local function enterState(newState)
 	if state == STATE.MELEE then
 		meleeChasing = false
 	end
-	if newState == STATE.COMBAT then
-		combatChaseCooldownUntil = 0
-	end
 	-- Limpiar estado de búsqueda al salir de SEARCH
 	if state == STATE.SEARCH then
 		searchPoints      = {}
@@ -512,9 +460,6 @@ end
 local function stopCombatChase()
 	moveToken   += 1
 	chaseActive  = false
-	rusherChaseStartAt = 0
-	rusherLastDistance = nil
-	rusherStallStartAt = 0
 end
 
 -- ── SISTEMA DE PATRULLA ───────────────────────────────────────────────────────
@@ -558,8 +503,9 @@ local function generatePatrolPoint()
 		local groundCheck = workspace:Raycast(candidate + Vector3.new(0, 10, 0), Vector3.new(0, -20, 0), rayParams)
 		if groundCheck then
 			local floorPos = groundCheck.Position
-			local path = computePath(HRP.Position, floorPos, "patrol")
-			if path then return floorPos end
+			local path     = PathService:CreatePath({ AgentRadius = 2, AgentHeight = 5, AgentCanJump = true })
+			local ok       = pcall(function() path:ComputeAsync(HRP.Position, floorPos) end)
+			if ok and path.Status == Enum.PathStatus.Success then return floorPos end
 		end
 	end
 	return nil
@@ -595,10 +541,10 @@ local function precalcPath(targetPos)
 	nextPathReady  = false
 	nextPathTarget = targetPos
 	task.spawn(function()
-		local p = computePath(HRP.Position, targetPos, "patrol_lookahead", { ignoreCooldown = false })
-		if p then
-			nextPath = p
-			nextPathReady = true
+		local p  = PathService:CreatePath({ AgentRadius = 2, AgentHeight = 5, AgentCanJump = true })
+		local ok = pcall(function() p:ComputeAsync(HRP.Position, targetPos) end)
+		if ok and p.Status == Enum.PathStatus.Success then
+			nextPath = p; nextPathReady = true
 		else
 			nextPath = nil; nextPathReady = false
 		end
@@ -631,14 +577,12 @@ local function moveTo(pos, running, gunMode, myToken)
 		path          = nextPath
 		nextPathReady = false
 	else
-		local status
-		path, status = computePath(HRP.Position, pos, "patrol")
-		if not path then
+		path     = PathService:CreatePath({ AgentRadius = 2, AgentHeight = 5, AgentCanJump = true })
+		local ok = pcall(function() path:ComputeAsync(HRP.Position, pos) end)
+		if not ok or path.Status ~= Enum.PathStatus.Success then
 			if myToken == moveToken then
 				Humanoid:MoveTo(pos)
-				if status == "failed" then
-					onPathBlocked()
-				end
+				onPathBlocked()
 			end
 			return
 		end
@@ -668,6 +612,7 @@ local function moveTo(pos, running, gunMode, myToken)
 		end
 		if not reached then conn:Disconnect() end
 
+		if i < #waypoints then precalcPath(pos) end
 	end
 
 	if myToken == moveToken and state == STATE.PATROL then
@@ -687,11 +632,12 @@ local function startFlee(myToken)
 	fleeTargetDist = fleeDist
 	fleeCooldown   = tick() + 3
 	local fleePos  = HRP.Position + fleeDir * fleeDist
-	local path     = computePath(HRP.Position, fleePos, "flee")
+	local path     = PathService:CreatePath({ AgentRadius = 2, AgentHeight = 5, AgentCanJump = true })
+	local ok       = pcall(function() path:ComputeAsync(HRP.Position, fleePos) end)
 	if state ~= STATE.FLEE or myToken ~= moveToken then return end
 	Humanoid.WalkSpeed = CFG.RUN_SPEED * 1.2
 	AnimManager:PlayMovement("Run")
-	if not path then
+	if not ok or path.Status ~= Enum.PathStatus.Success then
 		Humanoid:MoveTo(fleePos)
 		return
 	end
@@ -730,7 +676,6 @@ local function onTargetDied()
 	chaseActive  = false
 	spawnActive  = false
 	meleeChasing = false
-	combatHadLOS = false
 	stopCombatChase()
 	cancelMove()
 	enableRotation(false)
@@ -749,9 +694,6 @@ local function setTarget(char)
 	end
 
 	target = char
-	if not char then
-		combatHadLOS = false
-	end
 
 	if char then
 		local h = char:FindFirstChildOfClass("Humanoid")
@@ -777,112 +719,6 @@ local function holsterWeapon()
 	weaponDrawn = false
 	WeaponManager:Holster()
 	AnimManager:StopGunAnims()
-end
-
--- ── ROL / COMBAT NAV REEVALUATION ────────────────────────────────────────────
-local function setBehaviorRole(newRole, reason)
-	if newRole ~= "Rusher" and newRole ~= "Normal" then
-		newRole = "Normal"
-	end
-	if myBehaviorRole == newRole then return false end
-
-	local oldRole = myBehaviorRole
-	myBehaviorRole = newRole
-	NPC:SetAttribute("BehaviorRole", newRole)
-	behaviorRoleLockUntil     = tick() + CFG.BEHAVIOR_ROLE_LOCK_TIME
-	behaviorRoleCooldownUntil = tick() + CFG.BEHAVIOR_ROLE_REEVAL_COOLDOWN
-	print("[NPC] BehaviorRole:", oldRole, "->", newRole, "reason:", reason or "n/a")
-	rusherChaseStartAt = 0
-	rusherLastDistance = nil
-	rusherStallStartAt = 0
-
-	if newRole == "Rusher" then
-		stateDecision.willDrawWeapon = false
-		if weaponDrawn then
-			holsterWeapon()
-		end
-	else
-		stateDecision.willDrawWeapon = true
-		if target and state ~= STATE.PATROL and state ~= STATE.FLEE
-			and state ~= STATE.SURRENDER and state ~= STATE.ARRESTED
-			and not weaponDrawn then
-			task.defer(drawWeapon)
-		end
-	end
-
-	return true
-end
-
-maybeReevaluateBehaviorRole = function(reason, context)
-	local now = tick()
-	if state == STATE.DEAD or state == STATE.SURRENDER or state == STATE.ARRESTED then
-		return false
-	end
-	if now < behaviorRoleLockUntil or now < behaviorRoleCooldownUntil then
-		return false
-	end
-
-	context = context or {}
-	local currentRole = myBehaviorRole
-	local nextRole = currentRole
-	local chance = 0
-	local distance = context.distance
-	local hpPct    = context.hpPct
-
-	if currentRole == "Rusher" then
-		if reason == "LoseSight" or reason == "SearchEnter" then
-			chance = 0.18
-			if distance and distance < CFG.SHOOT_RANGE * 0.75 then chance += 0.05 end
-			if hpPct and hpPct < 0.5 then chance += 0.05 end
-		elseif reason == "Reacquire" then
-			chance = 0.10
-		elseif reason == "Damage" then
-			chance = 0.14
-			if hpPct and hpPct < 0.5 then chance += 0.06 end
-			if distance and distance < CFG.ATTACK_RANGE + 6 then chance += 0.04 end
-		elseif reason == "Stuck" then
-			chance = 0.16
-		end
-
-		if myCharacteristic == CHARACTERISTICS.FEAR then
-			chance += 0.05
-		elseif myCharacteristic == CHARACTERISTICS.OBEDIENT then
-			chance += 0.03
-		end
-
-		if chance > 0 and math.random() < math.clamp(chance, 0, 0.45) then
-			nextRole = "Normal"
-		end
-	else
-		if reason == "Damage" then
-			chance = 0.12
-			if distance and distance < CFG.SHOOT_RANGE * 0.75 then chance += 0.08 end
-			if hpPct and hpPct < 0.5 then chance += 0.05 end
-		elseif reason == "Reacquire" then
-			chance = 0.10
-			if distance and distance < CFG.SHOOT_RANGE * 0.60 then chance += 0.08 end
-		elseif reason == "LoseSight" or reason == "SearchEnter" then
-			chance = 0.08
-			if distance and distance < CFG.SHOOT_RANGE * 0.70 then chance += 0.06 end
-		elseif reason == "Stuck" then
-			chance = 0.10
-		end
-
-		if myCharacteristic == CHARACTERISTICS.FEAR then
-			chance += 0.04
-		elseif myCharacteristic == CHARACTERISTICS.OBEDIENT then
-			chance += 0.03
-		end
-
-		if chance > 0 and math.random() < math.clamp(chance, 0, 0.35) then
-			nextRole = "Rusher"
-		end
-	end
-
-	if nextRole ~= currentRole then
-		return setBehaviorRole(nextRole, reason)
-	end
-	return false
 end
 
 -- ── DISPARO ───────────────────────────────────────────────────────────────────
@@ -1111,192 +947,49 @@ local function melee(char)
 	task.wait(0.35)
 	local root = char:FindFirstChild("HumanoidRootPart")
 	if not root then return end
-	if (root.Position - HRP.Position).Magnitude <= CFG.ATTACK_RANGE + 2 and canSee(char, 0) then
+	if (root.Position - HRP.Position).Magnitude <= CFG.ATTACK_RANGE + 2 then
 		local h = char:FindFirstChildOfClass("Humanoid")
 		if h then h:TakeDamage(CFG.MELEE_DAMAGE) end
 	end
 end
 
--- ── NAVEGACIÓN DE COMBATE ───────────────────────────────────────────────────
-local function debugPath(reason, ...)
-	if CFG.DEBUG_PATHING then
-		print("[NPC][Path]", reason, ...)
-	end
-end
-
-local function computePath(startPos, goalPos, reason, opts)
-	opts = opts or {}
-
-	if not startPos or not goalPos then
-		debugPath(reason or "path", "skip", "invalid")
-		return nil, "invalid"
-	end
-
-	local now = tick()
-	local minInterval = opts.minInterval or CFG.PATH_RECALC_INTERVAL
-	if pathComputeInProgress then
-		debugPath(reason or "path", "skip", "busy")
-		return nil, "busy"
-	end
-	if not opts.ignoreCooldown and (now - lastPathComputeAt) < minInterval then
-		debugPath(reason or "path", "skip", "cooldown", string.format("%.2f", minInterval - (now - lastPathComputeAt)))
-		return nil, "cooldown"
-	end
-
-	pathComputeInProgress = true
-	local startedAt = tick()
-	debugPath(reason or "path", "start", startPos, goalPos)
-
-	local path = PathService:CreatePath({ AgentRadius = 2, AgentHeight = 5, AgentCanJump = true })
-	local ok, err = pcall(function()
-		path:ComputeAsync(startPos, goalPos)
-	end)
-
-	pathComputeInProgress = false
-	lastPathComputeAt = tick()
-
-	local elapsed = tick() - startedAt
-	if not ok or path.Status ~= Enum.PathStatus.Success then
-		debugPath(reason or "path", "fail", tostring(err or path.Status), string.format("%.2f", elapsed))
-		return nil, "failed"
-	end
-
-	debugPath(reason or "path", "done", string.format("%.2f", elapsed), #path:GetWaypoints())
-	return path, "success"
-end
-
-local function stopAndIdleCombatMovement(idleName)
-	Humanoid:MoveTo(HRP.Position)
-	if idleName then
-		AnimManager:PlayMovement(idleName)
-	end
-end
-
-local function startCombatChase(myToken)
+-- ── LOOP DE CHASE EN COMBATE ─────────────────────────────────────────────────
+local function startCombatChase(myToken, wantsGun)
 	if chaseActive then return end
-	if tick() < combatChaseCooldownUntil then return end
-	if state ~= STATE.COMBAT or myToken ~= moveToken then return end
-
 	chaseActive = true
 	task.spawn(function()
-		local lastProgressPos = HRP.Position
-		local lastProgressAt = tick()
-		local nextPathAt = 0
-		local pathToken = 0
-
-		local function markProgress()
-			if (HRP.Position - lastProgressPos).Magnitude >= CFG.COMBAT_STUCK_EPS then
-				lastProgressPos = HRP.Position
-				lastProgressAt = tick()
-			end
-		end
-
-		local function flagStuck(reason, context)
-			combatChaseCooldownUntil = tick() + 1.25
-			if maybeReevaluateBehaviorRole then
-				maybeReevaluateBehaviorRole(reason or "Stuck", context)
-			end
-			stopCombatChase()
-			stopAndIdleCombatMovement(weaponDrawn and "GunIdle" or "Idle")
-		end
-
 		while state == STATE.COMBAT and myToken == moveToken do
 			local tr = target and target:FindFirstChild("HumanoidRootPart")
-			if not tr or not isTargetValid(target) then break end
-
-			local now = tick()
+			if not tr then break end
 			local dist = (tr.Position - HRP.Position).Magnitude
-			local visible = canSee(target, CFG.COMBAT_LOS_INTERVAL)
-			local speed = weaponDrawn and (myBehaviorRole == "Rusher" and CFG.RUN_SPEED * CFG.RUSHER_SPEED_MULT or CFG.RUN_SPEED * 0.85) or CFG.RUN_SPEED
-			local movementName = weaponDrawn and "GunWalk" or "Run"
-			local stopDist = weaponDrawn and CFG.SHOOT_RANGE * 0.72 or CFG.ATTACK_RANGE
 
-			if myBehaviorRole == "Rusher" then
-				if rusherChaseStartAt == 0 then
-					rusherChaseStartAt = now
-				end
-				if rusherLastDistance and dist < (rusherLastDistance - 1.25) then
-					rusherStallStartAt = 0
-				elseif rusherStallStartAt == 0 then
-					rusherStallStartAt = now
-				end
-				rusherLastDistance = dist
-				if rusherStallStartAt > 0 and (now - rusherStallStartAt) >= CFG.RUSHER_CHASE_FAIL_TIME then
-					setBehaviorRole("Normal", "RusherTimeout")
-					combatChaseCooldownUntil = now + 0.5
-					break
-				end
-			end
+			local stopDist = wantsGun and (CFG.SHOOT_RANGE * 0.7) or CFG.ATTACK_RANGE
+			if dist <= stopDist then break end
 
-			if dist <= stopDist then
-				break
-			end
-
-			Humanoid.WalkSpeed = speed
-			if not AnimManager:IsPlayingAction() then
-				AnimManager:PlayMovement(movementName)
-			end
-
-			if visible then
-				Humanoid:MoveTo(tr.Position)
-			elseif lastSeenPos then
-				if now >= nextPathAt then
-					local path, status = computePath(HRP.Position, lastSeenPos, "combat_chase", { minInterval = 1.0 })
-					if path then
-						pathToken += 1
-						local myPathToken = pathToken
-						local waypoints = path:GetWaypoints()
-						for i = 2, #waypoints do
-							if state ~= STATE.COMBAT or myToken ~= moveToken or myPathToken ~= pathToken then break end
-							local wp = waypoints[i]
-							if wp.Action == Enum.PathWaypointAction.Jump then
-								Humanoid.Jump = true
-							end
-							Humanoid:MoveTo(wp.Position)
-							local reached = false
-							local conn
-							conn = Humanoid.MoveToFinished:Connect(function(r)
-								reached = r
-								if conn then conn:Disconnect() end
-							end)
-							local elapsed = 0
-							while not reached and elapsed < CFG.WAYPOINT_TIMEOUT do
-								elapsed += RS.Heartbeat:Wait()
-								if state ~= STATE.COMBAT or myToken ~= moveToken or myPathToken ~= pathToken then
-									if conn then conn:Disconnect() end
-									break
-								end
-							end
-							if conn then conn:Disconnect() end
-							if not reached then break end
-							markProgress()
-						end
-					else
-						if status ~= "busy" and status ~= "cooldown" then
-							Humanoid:MoveTo(lastSeenPos)
+			local heightDiff = math.abs(tr.Position.Y - HRP.Position.Y)
+			if heightDiff > 3 then
+				local path = PathService:CreatePath({ AgentRadius = 2, AgentHeight = 5, AgentCanJump = true })
+				local ok   = pcall(function() path:ComputeAsync(HRP.Position, tr.Position) end)
+				if ok and path.Status == Enum.PathStatus.Success then
+					local wps = path:GetWaypoints()
+					if wps[2] then
+						Humanoid:MoveTo(wps[2].Position)
+						if wps[2].Action == Enum.PathWaypointAction.Jump then
+							Humanoid.Jump = true
 						end
 					end
-					nextPathAt = now + CFG.PATH_RECALC_INTERVAL
+				else
+					Humanoid:MoveTo(tr.Position)
 				end
 			else
 				Humanoid:MoveTo(tr.Position)
 			end
 
-			markProgress()
-			if (tick() - lastProgressAt) >= CFG.COMBAT_STUCK_TIME then
-				flagStuck("Stuck", {
-					distance = dist,
-					mode = visible and "direct" or "path",
-				})
-				break
-			end
-
-			task.wait(0.12)
+			task.wait(0.1)
 		end
-
 		chaseActive = false
 		if state == STATE.COMBAT then
-			stopAndIdleCombatMovement(weaponDrawn and "GunIdle" or "Idle")
+			Humanoid:MoveTo(HRP.Position)
 		end
 	end)
 end
@@ -1379,9 +1072,7 @@ intimidateEvt.OnServerEvent:Connect(function(player, npcModel)
 	local intimidateVoice = game.ReplicatedStorage:FindFirstChild("IntimidateVoice")
 	if intimidateVoice then intimidateVoice:FireClient(player) end
 	if math.random() < getCharConfig().INTIMIDATE_RESIST then
-		setTarget(char)
-		state = STATE.COMBAT
-		combatHadLOS = true
+		setTarget(char); state = STATE.COMBAT
 	else
 		doSurrender()
 	end
@@ -1453,7 +1144,6 @@ local function cleanTargetForPlayer(player)
 	spawnActive     = false
 	chaseActive     = false
 	meleeChasing    = false
-	combatHadLOS    = false
 	patrolWaitTimer = CFG.PATROL_WAIT
 	stopCombatChase()
 	cancelMove()
@@ -1649,17 +1339,6 @@ Humanoid.HealthChanged:Connect(function(hp)
 		if math.random() < getSurrenderChance() then doSurrender() end
 	end
 	local damageTaken = prevHealth - hp
-	if damageTaken > 0 then
-		local targetDist = nil
-		local root = target and target:FindFirstChild("HumanoidRootPart")
-		if root then
-			targetDist = (root.Position - HRP.Position).Magnitude
-		end
-		maybeReevaluateBehaviorRole("Damage", {
-			distance = targetDist,
-			hpPct    = hp / Humanoid.MaxHealth,
-		})
-	end
 	if damageTaken > 0 and tick() - lastDamageReaction > 0.3 then
 		lastDamageReaction = tick()
 		AudioManager:Play("Shot")
@@ -1809,7 +1488,6 @@ RS.Heartbeat:Connect(function(dt)
 				outOfRangeTimer = 0
 				loseSightTimer  = 0
 				lastSeenPos     = tr and tr.Position or nil
-				combatHadLOS    = true
 			else
 				enableRotation(false)
 				holsterWeapon()
@@ -1875,21 +1553,11 @@ RS.Heartbeat:Connect(function(dt)
 		end
 		local dist = (tr.Position - HRP.Position).Magnitude
 
-		if canSee(target, CFG.COMBAT_LOS_INTERVAL) then
-			local hpPct = Humanoid.Health / Humanoid.MaxHealth
-			if not combatHadLOS then
-				maybeReevaluateBehaviorRole("Reacquire", { distance = dist, hpPct = hpPct })
-			end
-			combatHadLOS  = true
-			loseSightTimer = 0
+		if canSee(target) then
+			loseSightTimer  = 0
 			outOfRangeTimer = 0
-			lastSeenPos    = tr.Position
+			lastSeenPos     = tr.Position
 		else
-			local hpPct = Humanoid.Health / Humanoid.MaxHealth
-			if combatHadLOS then
-				combatHadLOS = false
-				maybeReevaluateBehaviorRole("LoseSight", { distance = dist, hpPct = hpPct })
-			end
 			loseSightTimer += dt
 
 			-- ── PRE-FIRE ─────────────────────────────────────────────────────────
@@ -1916,7 +1584,6 @@ RS.Heartbeat:Connect(function(dt)
 				-- En vez de ir directo a ALERT, el NPC busca activamente al jugador.
 				-- Si no tiene lastSeenPos (nunca lo vio bien) salta a ALERT directo.
 				if lastSeenPos then
-					maybeReevaluateBehaviorRole("SearchEnter", { distance = dist, hpPct = hpPct })
 					-- Generar puntos de búsqueda: lastSeenPos + satélites alrededor
 					searchPoints      = { lastSeenPos }
 					searchIndex       = 1
@@ -1943,11 +1610,9 @@ RS.Heartbeat:Connect(function(dt)
 				end
 				return
 			end
-
-			if lastSeenPos then
-				enableRotation(true)
-				setRotationTarget(lastSeenPos)
-				startCombatChase(moveToken)
+			if lastSeenPos and not chaseActive then
+				stopCombatChase()
+				spawnMove(lastSeenPos, true, false)
 			end
 			return
 		end
@@ -1990,48 +1655,66 @@ RS.Heartbeat:Connect(function(dt)
 		setRotationTarget(tr.Position)
 
 		-- ── RUSHER ───────────────────────────────────────────────────────────────
+		-- El Rusher ignora todo el sistema de disparo. Solo persigue al jugador
+		-- a máxima velocidad. Si la característica es Fear y está muy cerca,
+		-- puede surrenderear a mitad del rush por los nervios.
 		if myBehaviorRole == "Rusher" then
-			local now = tick()
 			local surrenderDist = getCharConfig().RUSHER_SURRENDER_DIST or 0
-			if surrenderDist > 0 and dist < surrenderDist and math.random() < getSurrenderChance() then
-				doSurrender()
-				return
+			if surrenderDist > 0 and dist < surrenderDist then
+				if math.random() < getSurrenderChance() then
+					doSurrender(); return
+				end
 			end
 
 			if dist <= CFG.ATTACK_RANGE then
 				stopCombatChase()
 				enterState(STATE.MELEE)
-				return
+			else
+				Humanoid.WalkSpeed = CFG.RUN_SPEED * 1.3
+				AnimManager:PlayMovement("Run")
+				startCombatChase(moveToken, false)
 			end
-
-			if tick() < combatChaseCooldownUntil then
-				stopAndIdleCombatMovement("Idle")
-				return
-			end
-
-			startCombatChase(moveToken)
 			return
 		end
 
 		-- ── COMBATE NORMAL (Semi / Auto / Spread) ────────────────────────────────
-		if not weaponDrawn and stateDecision.willDrawWeapon then
-			drawWeapon()
-		end
+		if not weaponDrawn and stateDecision.willDrawWeapon then drawWeapon() end
+
+		local actionBlocking = AnimManager:IsPlayingAction()
 
 		if dist <= CFG.ATTACK_RANGE then
 			stopCombatChase()
 			enterState(STATE.MELEE)
-			return
-		end
 
-		if weaponDrawn and dist <= CFG.SHOOT_RANGE then
+		elseif dist <= CFG.SHOOT_RANGE and weaponDrawn then
+			local innerThreshold = CFG.SHOOT_RANGE * 0.75
+			local outerThreshold = CFG.SHOOT_RANGE * 0.90
+
+			if dist < innerThreshold then
+				if chaseActive then stopCombatChase() end
+				if spawnActive then spawnActive = false; cancelMove() end
+				if not actionBlocking then
+					AnimManager:PlayMovement("GunIdle")
+				end
+			elseif dist > outerThreshold then
+				Humanoid.WalkSpeed = CFG.RUN_SPEED * 0.85
+				if not actionBlocking then
+					AnimManager:PlayMovement("GunWalk")
+				end
+				startCombatChase(moveToken, true)
+			end
 			shoot(target)
-		end
 
-		if tick() < combatChaseCooldownUntil then
-			stopAndIdleCombatMovement(weaponDrawn and "GunIdle" or "Idle")
 		else
-			startCombatChase(moveToken)
+			if spawnActive then
+				spawnActive = false
+				cancelMove()
+			end
+			Humanoid.WalkSpeed = CFG.RUN_SPEED
+			if not actionBlocking then
+				AnimManager:PlayMovement(weaponDrawn and "GunWalk" or "Run")
+			end
+			startCombatChase(moveToken, weaponDrawn and stateDecision.willDrawWeapon)
 		end
 
 		-- ── SEARCH ───────────────────────────────────────────────────────────────
@@ -2042,19 +1725,14 @@ RS.Heartbeat:Connect(function(dt)
 		end
 
 		-- Si redetecta al jugador en cualquier momento → vuelve a COMBAT
-		if canSee(target, CFG.SENSE_LOS_INTERVAL) then
+		if canSee(target) then
 			local tr2 = target:FindFirstChild("HumanoidRootPart")
 			lastSeenPos = tr2 and tr2.Position or lastSeenPos
 			loseSightTimer  = 0
 			outOfRangeTimer = 0
-			maybeReevaluateBehaviorRole("Reacquire", {
-				distance = tr2 and (tr2.Position - HRP.Position).Magnitude or nil,
-				hpPct    = Humanoid.Health / Humanoid.MaxHealth,
-			})
 			stopCombatChase()
 			enterState(STATE.COMBAT)
 			AudioManager:Play("Aggro")
-			combatHadLOS = true
 			return
 		end
 
@@ -2113,8 +1791,9 @@ RS.Heartbeat:Connect(function(dt)
 
 				local myMoveToken = moveToken
 				task.spawn(function()
-					local path = computePath(HRP.Position, dest, "search")
-					if not path then
+					local path = PathService:CreatePath({ AgentRadius = 2, AgentHeight = 5, AgentCanJump = true })
+					local ok   = pcall(function() path:ComputeAsync(HRP.Position, dest) end)
+					if not ok or path.Status ~= Enum.PathStatus.Success then
 						Humanoid:MoveTo(dest)
 					else
 						for _, wp in ipairs(path:GetWaypoints()) do
@@ -2172,7 +1851,6 @@ RS.Heartbeat:Connect(function(dt)
 		if dist > CFG.MELEE_CHASE_DIST then
 			meleeChasing = false
 			enterState(STATE.COMBAT)
-			combatHadLOS = true
 			return
 		end
 
@@ -2181,16 +1859,13 @@ RS.Heartbeat:Connect(function(dt)
 
 		if dist <= innerThreshold then
 			meleeChasing = false
-			stopCombatChase()
 			Humanoid:MoveTo(HRP.Position)
 			AnimManager:PlayMovement("Idle")
 		elseif dist > outerThreshold then
 			meleeChasing = true
-			if tick() < combatChaseCooldownUntil then
-				stopAndIdleCombatMovement("Idle")
-			else
-				startCombatChase(moveToken)
-			end
+			Humanoid.WalkSpeed = CFG.RUN_SPEED
+			Humanoid:MoveTo(tr.Position)
+			AnimManager:PlayMovement("Run")
 		end
 
 		melee(target)

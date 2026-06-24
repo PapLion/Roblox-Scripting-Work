@@ -89,3 +89,13 @@ StarterPlayer
 ReplicatedStorage
 └── Events
     └── VanInput (RemoteEvent - se crea dinámicamente)
+
+## Gasolina
+
+Workspace
+└── Model - Gasolina (Model)
+    ├── Model (Model) - 6 Parts internos
+    ├── Model (Model) - 6 Parts internos
+    └── 14 Parts (Part) - Partes directas del modelo
+
+    

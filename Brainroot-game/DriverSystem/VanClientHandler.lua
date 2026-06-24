@@ -5,10 +5,12 @@ local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local vanInput = ReplicatedStorage:WaitForChild("Events"):WaitForChild("VanInput")
+local vanFuelUpdate = ReplicatedStorage:WaitForChild("Events"):WaitForChild("VanFuelUpdate")
 local camera = workspace.CurrentCamera
 
 local cameraConnection = nil
 local hiddenCharacterParts = {}
+local mouseUnlocked = false
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "VanGui"
@@ -17,20 +19,78 @@ screenGui.ResetOnSpawn = false
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 300, 0, 180)
-mainFrame.Position = UDim2.new(0.5, -150, 0.8, -90)
-mainFrame.BackgroundTransparency = 0.5
-mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.Size = UDim2.new(0, 260, 0, 200)
+mainFrame.Position = UDim2.new(0, 24, 1, -200)
+mainFrame.BackgroundTransparency = 1
 mainFrame.Parent = screenGui
 
 local title = Instance.new("TextLabel")
-title.Text = "VAN CONTROLS"
-title.Size = UDim2.new(1, 0, 0, 30)
-title.BackgroundTransparency = 1
+title.Text = "VAN"
+title.Size = UDim2.new(0, 120, 0, 28)
+title.Position = UDim2.new(0, 70, 0, 0)
+title.BackgroundTransparency = 0.35
+title.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.SourceSansBold
-title.TextSize = 18
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
 title.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 10)
+titleCorner.Parent = title
+
+local mouseHint = Instance.new("TextLabel")
+mouseHint.Text = "Press V to unlock mouse"
+mouseHint.Size = UDim2.new(0, 160, 0, 18)
+mouseHint.Position = UDim2.new(0, 50, 0, 28)
+mouseHint.BackgroundTransparency = 1
+mouseHint.TextColor3 = Color3.fromRGB(230, 230, 230)
+mouseHint.Font = Enum.Font.Gotham
+mouseHint.TextSize = 12
+mouseHint.Parent = mainFrame
+
+local fuelFrame = Instance.new("Frame")
+fuelFrame.Size = UDim2.new(0, 180, 0, 46)
+fuelFrame.Position = UDim2.new(1, -210, 1, -90)
+fuelFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+fuelFrame.BackgroundTransparency = 0.35
+fuelFrame.Visible = false
+fuelFrame.Parent = screenGui
+
+local fuelCorner = Instance.new("UICorner")
+fuelCorner.CornerRadius = UDim.new(0, 10)
+fuelCorner.Parent = fuelFrame
+
+local fuelLabel = Instance.new("TextLabel")
+fuelLabel.Size = UDim2.new(1, 0, 0, 18)
+fuelLabel.Position = UDim2.new(0, 0, 0, 3)
+fuelLabel.BackgroundTransparency = 1
+fuelLabel.Text = "Fuel: 100/100"
+fuelLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+fuelLabel.Font = Enum.Font.GothamBold
+fuelLabel.TextSize = 13
+fuelLabel.Parent = fuelFrame
+
+local fuelBarBack = Instance.new("Frame")
+fuelBarBack.Size = UDim2.new(1, -20, 0, 14)
+fuelBarBack.Position = UDim2.new(0, 10, 0, 25)
+fuelBarBack.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+fuelBarBack.BorderSizePixel = 0
+fuelBarBack.Parent = fuelFrame
+
+local fuelBarBackCorner = Instance.new("UICorner")
+fuelBarBackCorner.CornerRadius = UDim.new(1, 0)
+fuelBarBackCorner.Parent = fuelBarBack
+
+local fuelBarFill = Instance.new("Frame")
+fuelBarFill.Size = UDim2.new(1, 0, 1, 0)
+fuelBarFill.BackgroundColor3 = Color3.fromRGB(255, 210, 60)
+fuelBarFill.BorderSizePixel = 0
+fuelBarFill.Parent = fuelBarBack
+
+local fuelBarFillCorner = Instance.new("UICorner")
+fuelBarFillCorner.CornerRadius = UDim.new(1, 0)
+fuelBarFillCorner.Parent = fuelBarFill
 
 local currentSeat = nil
 local activeInputs = {
@@ -68,6 +128,29 @@ local function setLocalCharacterHidden(hidden)
 	end
 end
 
+local function updateMouseState()
+	if mouseUnlocked then
+		UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+		UserInputService.MouseIconEnabled = true
+	else
+		UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+		UserInputService.MouseIconEnabled = false
+	end
+end
+
+local function canToggleMouse()
+	return currentSeat ~= nil and not UserInputService.TouchEnabled
+end
+
+vanFuelUpdate.OnClientEvent:Connect(function(data)
+	local current = data.current or 0
+	local maxFuel = data.max or 100
+	local percent = math.clamp(data.percent or 0, 0, 1)
+
+	fuelLabel.Text = "Fuel: " .. current .. "/" .. maxFuel
+	fuelBarFill.Size = UDim2.new(percent, 0, 1, 0)
+end)
+
 player.CharacterAdded:Connect(function()
 	table.clear(hiddenCharacterParts)
 end)
@@ -81,8 +164,8 @@ local function startVanCamera()
 	end
 
 	camera.CameraType = Enum.CameraType.Scriptable
-	UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-	UserInputService.MouseIconEnabled = false
+	mouseUnlocked = false
+	updateMouseState()
 
 	local _, initialYaw = cameraAnchor.CFrame:ToOrientation()
 	local yaw = initialYaw + math.rad(180)
@@ -132,8 +215,8 @@ local function stopVanCamera()
 		cameraConnection = nil
 	end
 
-	UserInputService.MouseBehavior = Enum.MouseBehavior.Default
-	UserInputService.MouseIconEnabled = true
+	mouseUnlocked = true
+	updateMouseState()
 
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
@@ -149,42 +232,93 @@ local function createButton(text, position, size, key)
 	btn.Text = text
 	btn.Position = position
 	btn.Size = size
-	btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	btn.BackgroundTransparency = 0.18
 	btn.TextColor3 = Color3.new(1, 1, 1)
-	btn.Font = Enum.Font.SourceSansBold
-	btn.TextSize = 20
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 22
+	btn.AutoButtonColor = false
 	btn.Parent = mainFrame
 
-	btn.MouseButton1Down:Connect(function()
-		activeInputs[key] = true
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(1, 0)
+	corner.Parent = btn
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 2
+	stroke.Transparency = 0.35
+	stroke.Color = Color3.fromRGB(255, 255, 255)
+	stroke.Parent = btn
+
+	local function setPressed(isPressed)
+		activeInputs[key] = isPressed
+
+		if isPressed then
+			btn.BackgroundTransparency = 0
+			btn.TextSize = 24
+		else
+			btn.BackgroundTransparency = 0.18
+			btn.TextSize = 22
+		end
+	end
+
+	btn.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch
+			or input.UserInputType == Enum.UserInputType.MouseButton1 then
+			setPressed(true)
+		end
 	end)
 
-	btn.MouseButton1Up:Connect(function()
-		activeInputs[key] = false
+	btn.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch
+			or input.UserInputType == Enum.UserInputType.MouseButton1 then
+			setPressed(false)
+		end
 	end)
 
-	-- Handle button focus loss
 	btn.MouseLeave:Connect(function()
-		activeInputs[key] = false
+		setPressed(false)
+	end)
+
+	btn.TouchLongPress:Connect(function(_, state)
+		if state == Enum.UserInputState.End then
+			setPressed(false)
+		end
+	end)
+
+	btn.Activated:Connect(function()
+		-- Activated is click/tap release, so we do not toggle here.
+		-- Movement is handled by MouseButton1Down / MouseButton1Up.
 	end)
 
 	return btn
 end
 
--- Create directional buttons
-local btnW = createButton("W (Forward)", UDim2.new(0.5, -40, 0, 40), UDim2.new(0, 80, 0, 40), "W")
-local btnA = createButton("A (Left)", UDim2.new(0.5, -125, 0, 85), UDim2.new(0, 80, 0, 40), "A")
-local btnS = createButton("S (Back)", UDim2.new(0.5, -40, 0, 85), UDim2.new(0, 80, 0, 40), "S")
-local btnD = createButton("D (Right)", UDim2.new(0.5, 45, 0, 85), UDim2.new(0, 80, 0, 40), "D")
+UserInputService.InputBegan:Connect(function(input, processed)
+	if processed then return end
+	if not canToggleMouse() then return end
+
+	if input.KeyCode == Enum.KeyCode.V then
+		mouseUnlocked = not mouseUnlocked
+		updateMouseState()
+	end
+end)
+
+local buttonSize = UDim2.new(0, 64, 0, 64)
+
+local btnW = createButton("▲", UDim2.new(0, 88, 0, 34), buttonSize, "W")
+local btnA = createButton("◀", UDim2.new(0, 20, 0, 102), buttonSize, "A")
+local btnS = createButton("▼", UDim2.new(0, 88, 0, 102), buttonSize, "S")
+local btnD = createButton("▶", UDim2.new(0, 156, 0, 102), buttonSize, "D")
 
 local exitLabel = Instance.new("TextLabel")
-exitLabel.Text = "Press SPACE or Jump to Exit"
-exitLabel.Size = UDim2.new(1, 0, 0, 30)
-exitLabel.Position = UDim2.new(0, 0, 0, 140)
+exitLabel.Text = "Jump / Space to exit"
+exitLabel.Size = UDim2.new(0, 220, 0, 24)
+exitLabel.Position = UDim2.new(0, 20, 0, 166)
 exitLabel.BackgroundTransparency = 1
-exitLabel.TextColor3 = Color3.new(0.8, 0.8, 0.8)
-exitLabel.Font = Enum.Font.SourceSansItalic
-exitLabel.TextSize = 16
+exitLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
+exitLabel.Font = Enum.Font.Gotham
+exitLabel.TextSize = 13
 exitLabel.Parent = mainFrame
 
 local function updateInput()
@@ -218,6 +352,7 @@ RunService.RenderStepped:Connect(function()
 				if not currentSeat then
 					currentSeat = seat
 					screenGui.Enabled = true
+					fuelFrame.Visible = true
 					setLocalCharacterHidden(true)
 					startVanCamera()
 				end
@@ -226,6 +361,7 @@ RunService.RenderStepped:Connect(function()
 				if currentSeat then
 					currentSeat = nil
 					screenGui.Enabled = false
+					fuelFrame.Visible = false
 					setLocalCharacterHidden(false)
 					stopVanCamera()
 				end
