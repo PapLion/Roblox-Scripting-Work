@@ -1,4 +1,4 @@
--- Shop with demo credits only (no MarketplaceService, no real payments, no payment data).
+-- Shop paid in earned credits only (no MarketplaceService, no real payments, no payment data).
 -- Flow: item sheet -> confirm (balance before/after) -> processing -> receipt or error.
 -- The confirm button locks on the first click and PURCHASE is refused for owned items, so a double
 -- click or a repeated purchase can never charge twice.
@@ -34,15 +34,18 @@ local function preview(item, size, opts)
 	Icons.apply(tile, "panelTone")
 	tile.SliceScale = 0.3
 	if item.kind == "finish" then
-		local sw = UI.new("ImageLabel", { BackgroundTransparency = 1, ImageColor3 = item.tint or C.steel2, Size = UDim2.fromScale(0.62, 0.62), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Parent = tile })
-		Icons.apply(sw, "btnCut")
-		sw.SliceScale = 0.5
+		-- a flat paint sample: the frame clips the stripe sheen exactly to its edges (a cut-shape image has a
+		-- transparent margin and chamfers, so a rectangular sheen on top of it spilled past the paint)
+		local sw = UI.new("Frame", { BackgroundColor3 = item.tint or C.steel2, BorderSizePixel = 0, ClipsDescendants = true, Size = UDim2.fromScale(0.62, 0.62), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Parent = tile })
 		UI.new("UIAspectRatioConstraint", { AspectRatio = 1.6, Parent = sw })
 		if not item.tint then
 			UI.new("UIGradient", { Color = ColorSequence.new(Color3.fromHex("#3A4148"), Color3.fromHex("#8E9AA6")), Rotation = 45, Parent = sw })
 		end
 		local sheen = UI.new("ImageLabel", { BackgroundTransparency = 1, ImageColor3 = C.white, ImageTransparency = 0.8, Size = UDim2.fromScale(1, 1), Parent = sw })
 		Icons.apply(sheen, "pattern_tape")
+		-- sample a few pixels inside the atlas cell so the downscaled edges never pick up a neighbour
+		sheen.ImageRectOffset += Vector2.new(4, 4)
+		sheen.ImageRectSize -= Vector2.new(8, 8)
 		sheen.ScaleType = Enum.ScaleType.Crop
 	elseif item.kind == "banner" then
 		local b = UI.banner(item.id, { Size = UDim2.new(1, -6, 1, -6), Position = UDim2.fromOffset(3, 3), Parent = tile })
@@ -160,7 +163,7 @@ local function purchaseFlow(item)
 					UI.divider({ Position = UDim2.new(0, 0, 1, 4), Parent = row })
 				end
 			end
-			UI.para("Operación simulada con créditos de la demo. No se usa dinero real ni se piden datos de pago.", { LayoutOrder = 2, TextSize = m.small, Parent = body })
+			UI.para("Se paga con créditos, que se ganan jugando partidas y completando misiones. No se usa dinero real.", { LayoutOrder = 2, TextSize = m.small, Parent = body })
 			local locked = false
 			modal.setActions({
 				{ text = "Volver", variant = "ghost", sound = "back", onClick = function()
@@ -182,7 +185,7 @@ local function purchaseFlow(item)
 			local row = UI.box({ Size = UDim2.new(1, 0, 0, 80), LayoutOrder = 1, Parent = body })
 			UI.list("h", 14, { HorizontalAlignment = Enum.HorizontalAlignment.Center }).Parent = row
 			UI.spinner(34, C.signal).Parent = row
-			UI.label("small", "Confirmando con el servidor de la demo", { Size = UDim2.fromScale(0, 1), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 2, Parent = row })
+			UI.label("small", "Confirmando la compra", { Size = UDim2.fromScale(0, 1), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 2, Parent = row })
 			modal.setActions({})
 			modal.scope:delay(0.9, function()
 				if Store.state.network ~= "online" then
@@ -323,7 +326,9 @@ function Shop.build(ctx)
 		UI.tag("Destacado", C.signal, { solid = true, icon = "star", order = 1 }).Parent = tr
 		UI.rarityTag(item.rarity, { order = 2 }).Parent = tr
 		UI.label("h1", item.name, { LayoutOrder = 2, Size = UDim2.new(1, 0, 0, m.h1 + 6), Parent = feat })
-		local card = WeaponView.card(item, { size = UDim2.new(1, 0, 0.42, 0), order = 3, drag = true })
+		-- the weapon sheet takes all the height the copy leaves: no dead space under the button
+		local card = WeaponView.card(item, { size = UDim2.new(1, 0, 0, 0), order = 3, drag = true })
+		UI.flex("fill").Parent = card.inst
 		card.inst.Parent = feat
 		UI.para(item.desc, { LayoutOrder = 4, TextSize = m.small, Parent = feat })
 		local priceRow = UI.box({ Size = UDim2.new(1, 0, 0, m.h2 + 6), LayoutOrder = 5, Parent = feat })
@@ -377,7 +382,8 @@ function Shop.build(ctx)
 	local function sizeCells()
 		local w = grid.AbsoluteSize.X - 14
 		local cw = math.floor((w - (cols - 1) * (m.gapSm + 2)) / cols)
-		gl.CellSize = UDim2.fromOffset(cw, math.floor(cw * (phone and 1.02 or 0.92)))
+		-- landscape phones are short: flatter cards keep name and price on the first row
+		gl.CellSize = UDim2.fromOffset(cw, math.floor(cw * (phone and 0.72 or 0.92)))
 	end
 	sizeCells()
 	scope:connect(grid:GetPropertyChangedSignal("AbsoluteSize"), sizeCells)

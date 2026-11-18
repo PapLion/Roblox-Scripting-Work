@@ -2,7 +2,7 @@
 -- Lobby, armory, shop, loadout card and match HUD all read names, stats and models from here.
 -- `model` = name of the Model in ReplicatedStorage.PivotUI.Assets.Weapons.
 -- `modelFacts` are real figures from Dani's Blender exports; `stats` are fictional game-design values.
--- `provisional = true` marks the simple stand-in models built in Studio (see README: pending assets).
+-- Wasp, Lance and the medkit use models built in Studio; their `lengthMm` is measured from those models.
 
 local Catalog = {}
 
@@ -29,13 +29,15 @@ Catalog.weapons = {
 	},
 	{
 		id = "wasp", kind = "weapon", slot = "primary", class = "smg", name = "Wasp SMG",
-		model = "WaspStandIn", provisional = true, rarity = "rare", price = 1800, unlockLevel = 4, auto = true, accuracy = 0.5,
+		model = "WaspStandIn", rarity = "rare", price = 1800, unlockLevel = 4, auto = true, accuracy = 0.5,
+		modelFacts = { lengthMm = 707 },
 		stats = { damage = 18, pellets = 1, rpm = 900, mag = 32, reserve = 128, reload = 1.9, range = 40, mobility = 84, control = 58 },
 		desc = "Subfusil ligero para flanquear. Mucha cadencia y poco alcance.",
 	},
 	{
 		id = "lance", kind = "weapon", slot = "primary", class = "dmr", name = "Lance DMR",
-		model = "LanceStandIn", provisional = true, rarity = "epic", price = 4500, unlockLevel = 10, auto = false, accuracy = 0.64,
+		model = "LanceStandIn", rarity = "epic", price = 4500, unlockLevel = 10, auto = false, accuracy = 0.64,
+		modelFacts = { lengthMm = 1211 },
 		stats = { damage = 52, pellets = 1, rpm = 180, mag = 10, reserve = 40, reload = 2.5, range = 90, mobility = 58, control = 72 },
 		desc = "Fusil de tirador. Dos impactos bastan contra un rival sin armadura.",
 	},
@@ -57,7 +59,8 @@ Catalog.support = {
 	},
 	{
 		id = "medkit", kind = "support", slot = "support", class = "support", name = "Botiquín de campo",
-		model = "MedkitStandIn", provisional = true, rarity = "rare", price = 900, unlockLevel = 3, effect = "heal",
+		model = "MedkitStandIn", rarity = "rare", price = 900, unlockLevel = 3, effect = "heal",
+		modelFacts = { lengthMm = 305 },
 		desc = "Recupera 50 puntos de vida. Uno por vida.",
 	},
 }

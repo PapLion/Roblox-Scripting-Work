@@ -364,13 +364,14 @@ function Parts.loadoutStrip(scope, opts)
 		require(PivotUI.Icons).apply(b, "panelTone")
 		b.SliceScale = 0.35
 		UI.flex("fill", slot == "primary" and 1.5 or 1).Parent = b
-		local card = WeaponView.card(Catalog.get(Store.state.loadout[slot]), { compact = true, size = UDim2.new(phone and 0.42 or 0.5, -6, 1, -8), finish = Store.finishOf(Store.state.loadout[slot]) })
+		-- thumbnail takes ~40 %: the name may wrap to two lines, the detail line stays short
+		local card = WeaponView.card(Catalog.get(Store.state.loadout[slot]), { compact = true, size = UDim2.new(0.42, -6, 1, -8), finish = Store.finishOf(Store.state.loadout[slot]) })
 		card.inst.Position = UDim2.fromOffset(4, 4)
 		card.inst.Parent = b
-		local txt = UI.box({ Size = UDim2.new(phone and 0.58 or 0.5, -12, 1, 0), Position = UDim2.new(phone and 0.42 or 0.5, 6, 0, 0), Parent = b })
+		local txt = UI.box({ Size = UDim2.new(0.58, -12, 1, 0), Position = UDim2.new(0.42, 6, 0, 0), Parent = b })
 		UI.list("v", 2, { VerticalAlignment = Enum.VerticalAlignment.Center }).Parent = txt
 		UI.label("eyebrow", Catalog.slotName[slot], { LayoutOrder = 1, TextSize = m.micro, Parent = txt })
-		local name = UI.label("title", "", { LayoutOrder = 2, TextSize = phone and m.small or m.body, Parent = txt })
+		local name = UI.label("title", "", { LayoutOrder = 2, TextSize = phone and m.small or m.body, TextWrapped = true, TextTruncate = Enum.TextTruncate.None, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1, 0, 0, 0), LineHeight = 0.95, Parent = txt })
 		local sub = UI.label("micro", "", { LayoutOrder = 3, Visible = not phone, Parent = txt })
 		local ring = UI.shape("panelCutStroke", C.signal, { Name = "Hover", SliceScale = 0.35, Visible = false, ZIndex = 3, Parent = b })
 		b.MouseEnter:Connect(function()
@@ -391,7 +392,18 @@ function Parts.loadoutStrip(scope, opts)
 				opts.onSlot(slot)
 			end
 		end)
-		cells[slot] = { card = card, name = name, sub = sub, id = nil, finish = nil }
+		local cell = { card = card, name = name, sub = sub, id = nil, finish = nil, full = "", short = "" }
+		-- narrow slots (tablet) keep the number rather than cut it: the class is dropped when it doesn't fit
+		function cell.fit()
+			sub.Text = cell.full
+			task.defer(function()
+				if sub.Parent and sub.AbsoluteSize.X > 0 and not sub.TextFits then
+					sub.Text = cell.short
+				end
+			end)
+		end
+		sub:GetPropertyChangedSignal("AbsoluteSize"):Connect(cell.fit)
+		cells[slot] = cell
 	end
 	local function refresh()
 		for slot, cell in cells do
@@ -406,10 +418,13 @@ function Parts.loadoutStrip(scope, opts)
 			cell.id, cell.finish = id, finish
 			cell.name.Text = item.name
 			if item.kind == "weapon" then
-				local fin = Catalog.get(finish)
-				cell.sub.Text = Catalog.className[item.class] .. "  ·  " .. item.stats.mag .. " balas  ·  " .. fin.name
+				-- the finish already shows on the thumbnail tint
+				cell.full = Catalog.className[item.class] .. "  ·  " .. item.stats.mag .. " balas"
+				cell.short = item.stats.mag .. " balas"
+				cell.fit()
 			else
-				cell.sub.Text = "Un uso por vida"
+				cell.full, cell.short = "Un uso por vida", "Un uso por vida"
+				cell.fit()
 			end
 		end
 	end

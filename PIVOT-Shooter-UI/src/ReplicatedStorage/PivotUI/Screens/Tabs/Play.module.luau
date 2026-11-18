@@ -155,13 +155,14 @@ function Play.build(ctx)
 			UI.new("UISizeConstraint", { MaxSize = Vector2.new(phone and 200 or 300, math.huge), Parent = card.inst })
 			local inner = UI.box({ Size = UDim2.fromScale(1, 1), ZIndex = 2, Parent = card.inst })
 			UI.pad(phone and 6 or 10).Parent = inner
-			Parts.mapPreview(map.id, { Size = UDim2.new(1, 0, 1, phone and -40 or -(m.h3 * 1.35 + m.micro * 3 + 16)), ZIndex = 2, Parent = inner })
-			local txt = UI.box({ Size = UDim2.new(1, 0, 0, phone and 34 or (m.h3 * 1.35 + m.micro * 3 + 8)), AnchorPoint = Vector2.new(0, 1), Position = UDim2.fromScale(0, 1), Parent = inner })
+			Parts.mapPreview(map.id, { Size = UDim2.new(1, 0, 1, phone and -40 or -(m.h3 * 1.35 + m.micro * 3.6 + 16)), ZIndex = 2, Parent = inner })
+			local txt = UI.box({ Size = UDim2.new(1, 0, 0, phone and 34 or (m.h3 * 1.35 + m.micro * 3.6 + 8)), AnchorPoint = Vector2.new(0, 1), Position = UDim2.fromScale(0, 1), Parent = inner })
 			UI.list("v", 2).Parent = txt
 			UI.label("h3", map.name, { LayoutOrder = 1, TextSize = phone and m.small + 1 or m.h3, Parent = txt })
 			local d = UI.para(map.desc, { TextSize = m.micro, LayoutOrder = 2, Visible = not phone, Parent = txt })
 			d.AutomaticSize = Enum.AutomaticSize.None
-			d.Size = UDim2.new(1, 0, 0, m.micro * 2.4)
+			-- room for three lines: on tablet the cards are narrow and the copy wraps once more
+			d.Size = UDim2.new(1, 0, 0, m.micro * 3.6)
 			d.TextTruncate = Enum.TextTruncate.AtEnd
 			card.inst.Parent = mapsCol
 			mapCards[map.id] = card

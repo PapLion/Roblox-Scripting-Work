@@ -216,7 +216,7 @@ function WeaponView.card(item, opts)
 		for i = 0, 20 do
 			UI.fill(C.paperInk, { Size = UDim2.fromOffset(1, i % 5 == 0 and 8 or 4), Position = UDim2.fromScale(i / 20, 0), BackgroundTransparency = 0.25, Parent = ticks })
 		end
-		length = UI.label("mono", "", { Name = "Length", TextColor3 = C.paperInk, TextSize = m.micro, Size = UDim2.new(1, 0, 0, 12), Position = UDim2.fromOffset(0, 10), TextXAlignment = Enum.TextXAlignment.Right, Parent = ruler })
+		length = UI.label("mono", "", { Name = "Length", FontFace = F.paper, TextColor3 = C.paperInk, TextSize = m.micro + 1, Size = UDim2.new(1, 0, 0, 12), Position = UDim2.fromOffset(0, 10), TextXAlignment = Enum.TextXAlignment.Right, Parent = ruler })
 	end
 
 	local missing
@@ -231,11 +231,11 @@ function WeaponView.card(item, opts)
 		end
 		if caption then
 			local cls = Catalog.className[item.class] or ""
-			caption.Text = UI.upper(item.name .. "  ·  " .. cls .. (item.provisional and "  ·  modelo provisional" or ""))
+			caption.Text = UI.upper(item.name .. "  ·  " .. cls)
 		end
 		if length then
 			local facts = item.modelFacts
-			length.Text = facts and string.format("%d mm  ·  %s triángulos", facts.lengthMm, tostring(facts.tris)) or "modelo provisional · sin medidas"
+			length.Text = facts and string.format("%d mm", facts.lengthMm) or ""
 		end
 	end
 	function api.setItem(newItem, finish)

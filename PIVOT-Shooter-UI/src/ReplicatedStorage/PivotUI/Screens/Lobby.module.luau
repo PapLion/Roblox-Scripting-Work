@@ -174,6 +174,7 @@ function Lobby.build(ctx)
 			UI.corner(9).Parent = badge
 			local badgeText = UI.label("micro", "", { Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = C.signalInk, FontFace = F.bodyHeavy, ZIndex = 5, Parent = badge })
 			local ring = UI.shape("roundedStroke", C.paper, { Name = "Focus", SliceScale = 0.25, Visible = false, ZIndex = 3, Parent = b })
+			UI.ownFocus(b)
 			local item = { id = tab.id, button = b, icon = icon, label = label, bar = bar, badge = badge, badgeText = badgeText }
 			navItems[tab.id] = item
 			b.MouseEnter:Connect(function()
@@ -240,7 +241,8 @@ function Lobby.build(ctx)
 		local full = id ~= "home"
 		Util.tween(dim, 0.25, { BackgroundTransparency = full and 0.28 or 1 })
 		vig.ImageTransparency = full and 0.0 or 0.15
-		stage.focus(id == "home" and "center" or "center")
+		stage.focus("center")
+		stage.show(not full)
 		local ok, err = pcall(function()
 			require(PivotUI.Screens.Tabs:WaitForChild(TAB_MODULE[id])).build({
 				root = host,
@@ -333,7 +335,7 @@ function Lobby.build(ctx)
 				end,
 				build = function(body)
 					UI.list("v", m.gap).Parent = body
-					UI.para("Esto es una demostración de la interfaz del juego. El grupo, las partidas, la tienda y la red están simulados en tu cliente: nada se compra ni se guarda fuera de esta sesión.", { LayoutOrder = 1, Parent = body })
+					UI.para("Partidas cortas de 4 contra 4 entre contenedores y grúas. Esto es lo básico para empezar:", { LayoutOrder = 1, Parent = body })
 					local steps = {
 						{ "play", "Jugar", "Elige modo y mapa, prepárate con tu grupo y busca partida." },
 						{ "armory", "Arsenal", "Equipa armas y acabados; los verás en el lobby y en el HUD." },

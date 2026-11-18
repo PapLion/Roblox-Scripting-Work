@@ -43,6 +43,23 @@ local function statRows(parent, item, other, order)
 		mobility = tostring(item.stats.mobility),
 		control = tostring(item.stats.control),
 	}
+	local value = {
+		damage = function(w)
+			return w.stats.damage * w.stats.pellets
+		end,
+		rate = function(w)
+			return w.stats.rpm
+		end,
+		range = function(w)
+			return w.stats.range
+		end,
+		mobility = function(w)
+			return w.stats.mobility
+		end,
+		control = function(w)
+			return w.stats.control
+		end,
+	}
 	for i, key in Catalog.statOrder do
 		local row = UI.box({ Size = UDim2.new(1, 0, 0, m.small + 12), LayoutOrder = i, Parent = box })
 		local top = UI.box({ Size = UDim2.new(1, 0, 0, m.small + 2), Parent = row })
@@ -52,9 +69,10 @@ local function statRows(parent, item, other, order)
 		bar.inst.Position = UDim2.new(0, 0, 1, -4)
 		bar.inst.Parent = row
 		if ob then
-			local d = bars[key] - ob[key]
+			-- the delta is shown in the stat's own units (per minute, metres, points); the colour says which is better
+			local d = value[key](item) - value[key](other)
 			if d ~= 0 then
-				val.Text = raw[key] .. string.format("  %s%d", d > 0 and "+" or "−", math.abs(d))
+				val.Text = raw[key] .. string.format("  %s%s", d > 0 and "+" or "−", Util.num(math.abs(d)))
 				val.TextColor3 = d > 0 and C.ok or C.bad
 			end
 			bar.color(d >= 0 and C.ok or C.bad)
@@ -88,7 +106,7 @@ local function compareModal(item)
 	end
 	UI.modal({
 		title = "Comparar armas",
-		eyebrow = item.name .. "  frente a…",
+		eyebrow = "Arsenal  ·  " .. item.name,
 		width = 860,
 		build = function(body, api)
 			UI.list("v", m.gap).Parent = body
@@ -123,7 +141,7 @@ local function compareModal(item)
 			seg.inst.Parent = body
 			cols.Parent = body
 			render()
-			UI.label("micro", "Verde: mejor que la otra arma  ·  rojo: peor. Valores de diseño de la demo.", { LayoutOrder = 3, Parent = body })
+			UI.label("micro", "Verde: mejor que la otra arma  ·  rojo: peor.", { LayoutOrder = 3, Parent = body })
 		end,
 		actions = { { text = "Cerrar comparación", variant = "ghost", onClick = function()
 			UI.closeModalSilently()
@@ -150,7 +168,7 @@ function Armory.build(ctx)
 	local side = sideW > 0 and UI.scroll({ Name = "Side", Size = UDim2.new(sideW, 0, 1, -m.pad), AnchorPoint = Vector2.new(1, 0), Position = UDim2.fromScale(1, 0), ScrollBarThickness = 3, Parent = root }) or nil
 
 	-- filters
-	local headRow = UI.header("Arsenal", { index = "03", order = 1 })
+	local headRow = UI.header("Arsenal", { order = 1 })
 	headRow.Parent = listCol
 	local slotSeg = UI.segmented({
 		fill = true,
@@ -158,8 +176,9 @@ function Armory.build(ctx)
 		value = filter.slot,
 		options = {
 			{ value = "all", label = "Todo" },
-			{ value = "primary", label = phone and "Princ." or "Principal" },
-			{ value = "secondary", label = phone and "Sec." or "Secundaria" },
+			-- the list column is narrow on tablet too: short labels everywhere except desktop
+			{ value = "primary", label = UI.layout ~= "desktop" and "Princ." or "Principal" },
+			{ value = "secondary", label = UI.layout ~= "desktop" and "Sec." or "Secundaria" },
 			{ value = "support", label = "Apoyo" },
 		},
 	})
@@ -197,11 +216,10 @@ function Armory.build(ctx)
 				local thumb = WeaponView.card(item, { compact = true, size = UDim2.new(0, math.floor(h * 1.55), 1, -8), finish = Store.finishOf(item.id) })
 				thumb.inst.Position = UDim2.fromOffset(4, 4)
 				thumb.inst.Parent = b
-				if st == "locked" or st == "shop" then
-					local veil = UI.fill(C.ink900, { BackgroundTransparency = 0.45, Size = UDim2.fromScale(1, 1), ZIndex = 5, Parent = thumb.inst })
-					if st == "locked" then
-						UI.icon("lock", 18, C.paper, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), ZIndex = 6, Parent = veil })
-					end
+				-- only level-locked gear is veiled; items for sale keep a readable thumbnail (the price tag says the rest)
+				if st == "locked" then
+					local veil = UI.fill(C.ink900, { BackgroundTransparency = 0.58, Size = UDim2.fromScale(1, 1), ZIndex = 5, Parent = thumb.inst })
+					UI.icon("lock", 18, C.paper, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), ZIndex = 6, Parent = veil })
 				end
 				local txt = UI.box({ Size = UDim2.new(1, -math.floor(h * 1.55) - 18, 1, 0), Position = UDim2.fromOffset(math.floor(h * 1.55) + 14, 0), Parent = b })
 				UI.list("v", 3, { VerticalAlignment = Enum.VerticalAlignment.Center }).Parent = txt
@@ -287,9 +305,6 @@ function Armory.build(ctx)
 		UI.list("h", 10).Parent = title
 		UI.label("h1", item.name, { Size = UDim2.fromScale(0, 1), AutomaticSize = Enum.AutomaticSize.X, TextSize = phone and m.h2 + 2 or m.h1, LayoutOrder = 1, Parent = title })
 		UI.rarityTag(item.rarity, { order = 2 }).Parent = title
-		if item.provisional then
-			UI.tag("Modelo provisional", C.warn, { icon = "info", order = 3 }).Parent = title
-		end
 
 		local cardH = phone and 150 or math.clamp(math.floor(root.AbsoluteSize.Y * 0.42), 180, 360)
 		local card = WeaponView.card(item, { size = UDim2.new(1, 0, 0, cardH), order = 2, drag = true, finish = Store.finishOf(item.id) })
@@ -358,9 +373,6 @@ function Armory.build(ctx)
 		UI.list("v", 10).Parent = statsPanel
 		UI.header(item.kind == "weapon" and "Estadísticas" or "Efecto", { order = 1 }).Parent = statsPanel
 		statRows(statsPanel, item, nil, 2)
-		if item.modelFacts then
-			UI.label("micro", string.format("Modelo 3D: %s triángulos · %d piezas · %d mm", Util.num(item.modelFacts.tris), item.modelFacts.parts, item.modelFacts.lengthMm), { LayoutOrder = 3, Parent = statsPanel })
-		end
 
 		-- finishes (cosmetics) for weapons
 		if item.kind == "weapon" then

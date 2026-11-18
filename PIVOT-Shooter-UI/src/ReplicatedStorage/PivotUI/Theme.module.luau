@@ -34,6 +34,10 @@ Theme.color = {
 	bad = hex("#FF5A5F"),
 	black = hex("#000000"),
 	white = hex("#FFFFFF"),
+	-- rubber-stamp inks, only ever on the paper surfaces
+	inkWin = hex("#C2510A"),
+	inkLoss = hex("#8E2B2B"),
+	inkNeutral = hex("#3A4048"),
 }
 
 -- Colour-blind friendly team palette (Settings > Accessibility).
@@ -53,10 +57,14 @@ local function family(name: string): string
 	return "rbxasset://fonts/families/" .. name .. ".json"
 end
 
+-- Display type is HighwayGothic: the signage face of docks, roads and container yards, which is where
+-- PIVOT is set. It has a single weight, so hierarchy comes from size and colour, not boldness.
+-- SpecialElite (typewriter) is reserved for things printed on paper: range cards, receipts, debriefs.
 Theme.font = {
-	display = Font.new(family("Oswald"), Enum.FontWeight.Bold),
-	displayMedium = Font.new(family("Oswald"), Enum.FontWeight.SemiBold),
+	display = Font.new(family("HighwayGothic")),
+	displayMedium = Font.new(family("HighwayGothic")),
 	displayLight = Font.new(family("Oswald"), Enum.FontWeight.Regular),
+	paper = Font.new(family("SpecialElite")),
 	body = Font.new(family("BuilderSans"), Enum.FontWeight.Medium),
 	bodyRegular = Font.new(family("BuilderSans"), Enum.FontWeight.Regular),
 	bodySemi = Font.new(family("BuilderSans"), Enum.FontWeight.SemiBold),

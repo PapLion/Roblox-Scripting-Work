@@ -17,7 +17,7 @@ Engine.noticeText = {
 	triple = "Triple eliminación", streak5 = "Racha de 5", leadTaken = "Tu equipo va en cabeza", leadLost = "Los rivales toman la delantera",
 	matchPointUs = "Una eliminación para ganar", matchPointThem = "Una eliminación para perder", lowAmmo = "Munición baja",
 	armorBroken = "Armadura rota", ammoRefilled = "Munición repuesta", healed = "+50 de vida", assist = "Asistencia",
-	oneMinute = "Queda 1 minuto", scriptStart = "Guion de demostración en marcha", noReserve = "Sin munición en reserva",
+	oneMinute = "Queda 1 minuto", scriptStart = "Secuencia guiada en marcha", noReserve = "Sin munición en reserva",
 	supportUsed = "Apoyo ya usado en esta vida",
 }
 Engine.noticeTone = {
@@ -654,6 +654,15 @@ step = function(d, a)
 		end
 	elseif t == "DEMO_KILL" then
 		if d.phase == "live" and d.me.alive then
+			-- count the hits it takes to bring the target down, so damage and accuracy stay consistent
+			local extra = math.max(0, d.target.hp - 1)
+			if extra > 0 then
+				local per = Catalog.get(d.slots[d.active].weapon).stats.damage
+				local hits = math.ceil(extra / per)
+				d.me.damage += extra
+				d.me.hits += hits
+				d.me.shots += hits
+			end
 			d.target.hp = 1
 			step(d, { type = "DEMO_HIT" })
 		end

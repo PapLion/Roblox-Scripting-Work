@@ -20,7 +20,7 @@ local Theme = require(PivotUI.Theme)
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Roblox core UI that a menu-driven showcase doesn't use. The top bar and the Roblox menu stay.
+-- Roblox core UI that a menu-driven game doesn't use. The top bar and the Roblox menu stay.
 local function setCore()
 	for _, t in { Enum.CoreGuiType.PlayerList, Enum.CoreGuiType.Backpack, Enum.CoreGuiType.Health, Enum.CoreGuiType.EmotesMenu, Enum.CoreGuiType.Chat } do
 		pcall(StarterGui.SetCoreGuiEnabled, StarterGui, t, false)
@@ -57,7 +57,6 @@ end
 local backdropGui = screenGui("PivotBackdrop", 5, Enum.ScreenInsets.None)
 local mainGui = screenGui("PivotUI", 10, Enum.ScreenInsets.CoreUISafeInsets)
 local overlayGui = screenGui("PivotOverlay", 20, Enum.ScreenInsets.CoreUISafeInsets)
-local showcaseGui = screenGui("PivotShowcase", 30, Enum.ScreenInsets.CoreUISafeInsets)
 
 -- keyboard focus ring used by Roblox UI navigation (arrow keys / Enter once a control is selected)
 local ring = UI.new("ImageLabel", { Name = "PivotFocus", BackgroundTransparency = 1, ImageColor3 = Theme.color.paper, Size = UDim2.fromScale(1, 1) })
@@ -69,7 +68,7 @@ UI.initOverlay(overlayGui)
 
 ---------------------------------------------------------------- layout
 local layoutChanged = Util.signal()
-local app = { layoutChanged = layoutChanged, backdrop = backdropGui, main = mainGui, overlay = overlayGui, showcase = showcaseGui }
+local app = { layoutChanged = layoutChanged, backdrop = backdropGui, main = mainGui, overlay = overlayGui }
 
 local function touchMode(): boolean
 	local pref = Store.state.settings.controls.touch
@@ -265,10 +264,6 @@ UserInputService.InputBegan:Connect(function(input, processed)
 		if scopeRoot then
 			pcall(GuiService.Select, GuiService, scopeRoot)
 		end
-	elseif key == Enum.KeyCode.Backquote then
-		if app.toggleShowcase then
-			app.toggleShowcase()
-		end
 	end
 end)
 
@@ -280,8 +275,8 @@ RunService.RenderStepped:Wait()
 updateLayout(true)
 mount(true)
 
--- Development bridge for automated checks and reproducible captures from Studio tools (client only,
--- lives in PlayerGui, never replicated). Invoke("state") / ("dispatch", action) / ("match", action).
+-- Development bridge for automated checks and reproducible captures from Studio tools. Only created
+-- in Studio (client only, lives in PlayerGui, never replicated). Invoke("state") / ("dispatch", action) / ("match", action).
 local bridge = Instance.new("BindableFunction")
 bridge.Name = "PivotDevBridge"
 bridge.OnInvoke = function(cmd, arg)
@@ -297,9 +292,6 @@ bridge.OnInvoke = function(cmd, arg)
 		return false
 	elseif cmd == "closeModal" then
 		UI.closeModalSilently()
-		return true
-	elseif cmd == "capture" then
-		workspace:SetAttribute("PivotCapture", arg == true)
 		return true
 	elseif cmd == "modal" then
 		return UI.modalOpen()
@@ -318,12 +310,7 @@ bridge.OnInvoke = function(cmd, arg)
 		connections = Store.changed:count(),
 	}
 end
-bridge.Parent = playerGui
-
--- showcase panel (separate ScreenGui, hidden in capture mode)
-local okShowcase, errShowcase = pcall(function()
-	require(PivotUI.Showcase).init(app)
-end)
-if not okShowcase then
-	warn("[PIVOT] showcase failed: " .. tostring(errShowcase))
+if RunService:IsStudio() then
+	bridge.Parent = playerGui
 end
+

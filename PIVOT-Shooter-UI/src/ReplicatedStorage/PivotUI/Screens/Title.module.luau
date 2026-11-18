@@ -36,7 +36,7 @@ function Title.build(ctx)
 	local wordH = math.floor(math.min(root.AbsoluteSize.Y * (phone and 0.26 or 0.27), 210))
 	local word = UI.label("h1", "PIVOT", { TextScaled = true, Size = UDim2.new(1, 0, 0, wordH), LayoutOrder = 2, LineHeight = 0.9, Parent = col })
 	word.TextTransparency = Util.reducedMotion and 0 or 1
-	UI.para("Cuatro contra cuatro en mapas compactos. Elige tu equipo, ajusta tu arsenal y gana la ronda antes de que se acabe el tiempo.", { LayoutOrder = 3, Size = UDim2.new(phone and 1 or 0.86, 0, 0, 0), TextSize = m.body + (phone and 0 or 1), Parent = col })
+	UI.para("Cuatro contra cuatro en mapas compactos.\nElige equipo, ajusta tu arsenal y gana antes de que se acabe el tiempo.", { LayoutOrder = 3, Size = UDim2.new(phone and 1 or 0.86, 0, 0, 0), TextSize = m.body + (phone and 0 or 1), Parent = col })
 
 	local enterRow = UI.box({ Size = UDim2.new(1, 0, 0, m.btnLg), LayoutOrder = 4, Parent = col })
 	UI.pad(phone and 6 or 14, 0, 0, 0).Parent = enterRow
@@ -54,9 +54,9 @@ function Title.build(ctx)
 	btn.inst.Parent = enterRow
 	local hint = UI.label("small", UI.touch and "o toca en cualquier parte" or "o pulsa cualquier tecla", { Size = UDim2.fromScale(0, 1), AutomaticSize = Enum.AutomaticSize.X, TextColor3 = C.steel, LayoutOrder = 2, Parent = enterRow })
 
-	-- footer: honest build tag
+	-- footer: season + build tag
 	local foot = UI.box({ Name = "Footer", Size = UDim2.new(1, -2 * m.pad, 0, m.small + 8), AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, m.pad, 1, -m.pad), Parent = root })
-	UI.label("mono", "Demo de interfaz en Roblox Studio  ·  datos simulados  ·  build 0.9.0", { TextSize = m.micro, TextColor3 = C.steel, Parent = foot })
+	UI.label("mono", "Temporada 1: Muelle 9  ·  v1.0.0", { TextSize = m.micro, TextColor3 = C.steel, Parent = foot })
 
 	-- entrance motion
 	if not Util.reducedMotion then

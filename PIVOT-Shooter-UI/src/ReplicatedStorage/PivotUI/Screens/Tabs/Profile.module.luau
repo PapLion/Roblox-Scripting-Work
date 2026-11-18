@@ -89,7 +89,7 @@ function Profile.build(ctx)
 		local p = Store.state.profile
 		local st = p.stats
 
-		UI.header("Perfil", { index = "06", order = 1 }).Parent = left
+		UI.header("Perfil", { order = 1 }).Parent = left
 		Parts.playerCard(childScope, { order = 2, height = phone and 72 or 110 }).Parent = left
 		local custom = UI.surface({ Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 3, Parent = left }, { edge = C.ink700, pad = 14 })
 		UI.list("v", 12).Parent = custom

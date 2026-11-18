@@ -15,8 +15,8 @@ local Store = {}
 Store.changed = Util.signal()
 
 Store.defaultSettings = {
-	audio = { master = 70, effects = 80, music = 50 },
-	graphics = { quality = "high", fov = 80, fpsLimit = "60" },
+	audio = { master = 70, effects = 80 },
+	graphics = { quality = "high", fov = 80 },
 	controls = { sensitivity = 1.0, invertY = false, touch = "auto" },
 	interface = { hudScale = 100, crosshair = "cross", crosshairSize = 100, crosshairColor = "white", killfeed = true, damageNumbers = true },
 	accessibility = { reducedMotion = false, colorblind = false, screenShake = true },

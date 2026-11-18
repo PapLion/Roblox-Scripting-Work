@@ -8,6 +8,7 @@ Outputs:
 Run: python3 art/build_atlas.py
 """
 import os
+import shutil
 import subprocess
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -112,6 +113,8 @@ ICONS = {
     "kick": s("M4 20.5c1.2-3.9 3.8-5.8 7-5.8") + circ(11, 8, 3.8) + s("M16 14.5l5 5M21 14.5l-5 5"),
     "scope": circ(12, 12, 8) + s("M12 4v5M12 15v5M4 12h5M15 12h5"),
     "rotate": s("M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3") + s("M18 3v4h-4M6 21v-4h4"),
+    # rank insignia for the best player of the match: two chevrons under a star
+    "mvp": f("M12 1.8l1.6 3.3 3.6.5-2.6 2.5.6 3.6L12 10l-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z") + s("M4.5 14l7.5 4 7.5-4M4.5 19l7.5 4 7.5-4"),
 }
 
 # 48-unit grid, drawn in 128 px cells.
@@ -166,12 +169,12 @@ def build():
     )
     mapping["spinner"] = (0, 512, 128, 128)
     # 9-slice shapes, 128 px cells at y=512 (SliceCenter 32..96)
-    cut = 24  # chamfer size at full scale (SliceScale 0.5 -> 12 px)
+    # "Dock manifest" plate: square corners, a small notch top-left and a long chamfer bottom-right,
+    # so every panel leans forward the same way (read direction -> action).
     r = 8
-    panel = (
-        f"M{4 + r} 4 H{124 - cut} L124 {4 + cut} V{124 - r} Q124 124 {124 - r} 124 H{4 + r} Q4 124 4 {124 - r} V{4 + r} Q4 4 {4 + r} 4 Z"
-    )
-    btn = f"M{4 + cut} 4 H{124 - r} Q124 4 124 {4 + r} V{124 - cut} L{124 - cut} 124 H{4 + r} Q4 124 4 {124 - r} V{4 + cut} Z"
+    panel = "M14 4 H122 Q124 4 124 6 V100 L100 124 H6 Q4 124 4 122 V14 Z"
+    # secondary buttons: two opposite square chamfers, no rounding
+    btn = "M20 4 H124 V108 L108 124 H4 V20 Z"
     shapes = [
         ("panelCut", f'<path d="{panel}" fill="#fff"/>'),
         ("panelCutStroke", f'<path d="{panel}" fill="none" stroke="#fff" stroke-width="3" transform="translate(64 64) scale(0.976) translate(-64 -64)"/>'),
@@ -189,9 +192,11 @@ def build():
     # border is lighter than its fill (tint = border colour, fill = tint x 0.62).
     tone_fill = "#9E9E9E"
     for name, d, x in (("panelTone", panel, 768), ("btnTone", btn, 896)):
+        # plus a light rail just under the top edge: the bevel that makes the plate read as metal
+        rail = '<path d="M16 10.5 H118" stroke="#D2D2D2" stroke-width="2.2"/>' if name == "panelTone" else ""
         parts.append(
             f'<g transform="translate({x},640)"><path d="{d}" fill="#fff"/>'
-            f'<path d="{d}" fill="{tone_fill}" transform="translate(64 64) scale(0.953) translate(-64 -64)"/></g>'
+            f'<path d="{d}" fill="{tone_fill}" transform="translate(64 64) scale(0.953) translate(-64 -64)"/>{rail}</g>'
         )
         mapping[name] = (x, 640, 128, 128)
     # soft glow + vignette (radial gradients)
@@ -231,12 +236,64 @@ def build():
     parts.append(f'<svg x="128" y="640" width="128" height="128" viewBox="0 0 128 128" overflow="hidden">{hatch}</svg>')
     mapping["hatch"] = (128, 640, 128, 128)
 
+    # ---- "dock manifest" pieces (free 128 cells at 768..1024 x 768..1024, strip below fadeRight)
+    # scope brackets: four L corners, transparent middle (9-slice 40..88), framed around hero panels
+    br = "M6 34V6H34M94 6H122V34M122 94V122H94M34 122H6V94"
+    parts.append(f'<g transform="translate(768,768)"><path d="{br}" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="square"/></g>')
+    mapping["brackets"] = (768, 768, 128, 128)
+    # primary button: parallelogram leaning forward (leading edge in the 9-slice side columns)
+    slant = "M28 4H124L100 124H4Z"
+    parts.append(f'<g transform="translate(896,768)"><path d="{slant}" fill="#fff"/></g>')
+    mapping["btnSlant"] = (896, 768, 128, 128)
+    parts.append(f'<g transform="translate(768,896)"><path d="M29.2 5.5H122.2L98.8 122.5H5.8Z" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="miter"/></g>')
+    mapping["btnSlantStroke"] = (768, 896, 128, 128)
+    # cargo tag: pointed left end with a punched eyelet
+    tag = "M4 64L30 4H118Q124 4 124 10V118Q124 124 118 124H30Z M41 64a9 9 0 1 0-18 0a9 9 0 1 0 18 0Z"
+    parts.append(f'<g transform="translate(896,896)"><path d="{tag}" fill="#fff" fill-rule="evenodd"/></g>')
+    mapping["tagCargo"] = (896, 896, 128, 128)
+    # rubber stamp: heavy outer ring + thin inner ring, eroded by a fixed speckle mask (128x96, 9-slice)
+    specks = "".join(
+        f'<circle cx="{(i * 7907) % 128}" cy="{(i * 3571) % 96}" r="{0.7 + (i * 17 % 7) * 0.32:.2f}" fill="#000"/>' for i in range(1, 140)
+    )
+    parts.append(
+        '<defs><mask id="erode" maskUnits="userSpaceOnUse" x="0" y="0" width="128" height="96">'
+        f'<rect width="128" height="96" fill="#fff"/>{specks}</mask></defs>'
+        '<g transform="translate(256,928)"><g mask="url(#erode)">'
+        '<rect x="6" y="6" width="116" height="84" rx="9" fill="none" stroke="#fff" stroke-width="7"/>'
+        '<rect x="15.5" y="15.5" width="97" height="65" rx="4" fill="none" stroke="#fff" stroke-width="2.4"/>'
+        '</g></g>'
+    )
+    mapping["stamp"] = (256, 928, 128, 96)
+    # tear-off edge for paper: 32x16 tile, paper on top with round bites along the bottom (tiled in X)
+    parts.append('<g transform="translate(384,928)"><path d="M0 0H32V16H29A5 5 0 0 0 19 16H13A5 5 0 0 0 3 16H0Z" fill="#fff"/></g>')
+    mapping["perforation"] = (384, 928, 32, 16)
+    # hazard block clipped to the same forward slant as the primary button (64x96)
+    stripes = "".join(f'<path d="M{x} 96 L{x + 96} 0" stroke="#fff" stroke-width="7"/>' for x in range(-96, 96, 16))
+    parts.append(
+        '<defs><clipPath id="slantClip"><path d="M18 0H64L46 96H0Z"/></clipPath></defs>'
+        f'<g transform="translate(416,928)"><g clip-path="url(#slantClip)">{stripes}</g></g>'
+    )
+    mapping["hatchSlant"] = (416, 928, 64, 96)
+    # corrugated container ribs, 64x96 tile in X (drawn at low opacity behind panel headers)
+    ribs = "".join(
+        f'<rect x="{x}" y="0" width="{w}" height="96" fill="#fff" fill-opacity="{o}"/>'
+        for x, w, o in ((0, 4, 0.35), (4, 10, 1.0), (14, 4, 0.55), (18, 14, 0.12), (32, 4, 0.35), (36, 10, 1.0), (46, 4, 0.55), (50, 14, 0.12))
+    )
+    parts.append(f'<g transform="translate(480,928)">{ribs}</g>')
+    mapping["ribs"] = (480, 928, 64, 96)
+
     svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">' + "".join(parts) + "</svg>"
     svg_path = os.path.join(HERE, "pivot_atlas.svg")
     png_path = os.path.join(HERE, "pivot_atlas.png")
     with open(svg_path, "w") as fh:
         fh.write(svg)
-    subprocess.run(["rsvg-convert", "-w", str(SIZE), "-h", str(SIZE), "-o", png_path, svg_path], check=True)
+    if shutil.which("rsvg-convert"):
+        subprocess.run(["rsvg-convert", "-w", str(SIZE), "-h", str(SIZE), "-o", png_path, svg_path], check=True)
+    else:  # Windows / no librsvg: pip install resvg-py
+        import resvg_py
+
+        with open(png_path, "wb") as fh:
+            fh.write(bytes(resvg_py.svg_to_bytes(svg_string=svg, width=SIZE, height=SIZE)))
     lines = ["-- generated by art/build_atlas.py: name = {x, y, w, h} in the 1024x1024 atlas", "return {"]
     for name, (x, y, w, h) in mapping.items():
         lines.append(f"\t{name} = {{ {x}, {y}, {w}, {h} }},")
@@ -245,11 +302,18 @@ def build():
         fh.write("\n".join(lines) + "\n")
     # preview on dark background for review
     prev = os.path.join(HERE, "atlas_preview.png")
-    subprocess.run(
-        ["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i", f"color=c=0x1E252D:s={SIZE}x{SIZE}", "-i", png_path,
-         "-filter_complex", "[0][1]overlay", "-frames:v", "1", prev],
-        check=True,
-    )
+    if shutil.which("ffmpeg"):
+        subprocess.run(
+            ["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i", f"color=c=0x1E252D:s={SIZE}x{SIZE}", "-i", png_path,
+             "-filter_complex", "[0][1]overlay", "-frames:v", "1", prev],
+            check=True,
+        )
+    else:  # pip install pillow
+        from PIL import Image
+
+        sheet = Image.open(png_path).convert("RGBA")
+        bg = Image.new("RGBA", sheet.size, (0x1E, 0x25, 0x2D, 255))
+        Image.alpha_composite(bg, sheet).convert("RGB").save(prev)
     print("icons:", len(ICONS), "entries:", len(mapping))
 
 

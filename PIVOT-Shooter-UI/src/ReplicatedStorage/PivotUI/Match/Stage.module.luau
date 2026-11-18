@@ -60,13 +60,14 @@ end
 
 ---------------------------------------------------------------- lobby stand
 -- Shows the equipped primary weapon (with its finish) on the stand behind the lobby UI.
--- Returns a controller with refresh(itemId, finishId) and focus("left" | "center").
+-- Returns a controller with refresh(itemId, finishId), focus("left" | "center") and show(visible).
 function Stage.lobby(scope)
 	local mount = LOBBY:WaitForChild("WeaponMount")
 	local camMark = LOBBY:WaitForChild("LobbyCam")
 	setCamera(camMark.CFrame, 50)
 	menuBlur(true)
 	local current, currentId, currentFinish
+	local shown = true
 	local yaw = 0.5
 	local ctl = {}
 	local shift = 0 -- lateral camera offset so the weapon sits in the free part of the layout
@@ -92,10 +93,23 @@ function Stage.lobby(scope)
 		WeaponView.applyFinish(current, finishId)
 		local _, size = current:GetBoundingBox()
 		current:ScaleTo(math.clamp(4.6 / math.max(size.X, 0.1), 1, 3))
-		current.Parent = LOBBY
+		current.Parent = shown and LOBBY or nil
 	end
 	function ctl.focus(where: string)
 		targetShift = where == "left" and 2.6 or (where == "right" and -2.6 or 0)
+	end
+	-- full-panel tabs hide the weapon and soften the room (3D only; BlurEffect never touches the UI),
+	-- so no slice of the weapon or crisp line of the set shows through the gaps between panels
+	local panelBlur = Lighting:FindFirstChild("PivotPanelBlur") or Instance.new("BlurEffect")
+	panelBlur.Name = "PivotPanelBlur"
+	panelBlur.Size = 0
+	panelBlur.Parent = Lighting
+	function ctl.show(visible: boolean)
+		shown = visible
+		if current then
+			current.Parent = visible and LOBBY or nil
+		end
+		Util.tween(panelBlur, 0.25, { Size = visible and 0 or 14 })
 	end
 	local drop = 0
 	scope:connect(RunService.RenderStepped, function(dt)
@@ -116,6 +130,7 @@ function Stage.lobby(scope)
 		if current then
 			current:Destroy()
 		end
+		panelBlur.Size = 0
 		menuBlur(false)
 	end)
 	return ctl

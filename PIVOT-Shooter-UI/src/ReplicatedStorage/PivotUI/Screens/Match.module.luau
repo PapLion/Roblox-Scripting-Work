@@ -30,6 +30,39 @@ local function plate(props, opts)
 	return UI.surface(props, { edge = (opts and opts.edge) or C.ink600, pad = (opts and opts.pad) or 10, cut = (opts and opts.cut) or 0.3 })
 end
 
+-- Segmented gauge: forward-slanted cells, read at a glance like a rangefinder readout.
+-- api.set(value, max) fills cells left to right (the last one partially), api.color(c).
+local function segBar(count: number, h: number, w: number, color: Color3, track: Color3?)
+	local row = UI.box({ Name = "Segments", Size = UDim2.fromOffset(w, h) })
+	local gap = 3
+	local segW = math.floor((w - gap * (count - 1)) / count)
+	-- each cell is one stretched parallelogram: a 9-slice would split the diagonal into two steps
+	local cells = {}
+	for i = 1, count do
+		local cell = UI.new("ImageLabel", { Name = "Cell" .. i, BackgroundTransparency = 1, ImageColor3 = track or C.ink700, Size = UDim2.fromOffset(segW, h), Position = UDim2.fromOffset((i - 1) * (segW + gap), 0), Parent = row })
+		Icons.apply(cell, "btnSlant")
+		cell.ScaleType = Enum.ScaleType.Stretch
+		local clip = UI.box({ Name = "Clip", Size = UDim2.fromScale(1, 1), ClipsDescendants = true, Parent = cell })
+		local fill = UI.new("ImageLabel", { Name = "Fill", BackgroundTransparency = 1, ImageColor3 = color, Size = UDim2.fromOffset(segW, h), Parent = clip })
+		Icons.apply(fill, "btnSlant")
+		fill.ScaleType = Enum.ScaleType.Stretch
+		cells[i] = { clip = clip, fill = fill }
+	end
+	local api = { inst = row }
+	function api.set(value: number, max: number)
+		local per = max / count
+		for i, c in cells do
+			c.clip.Size = UDim2.fromScale(math.clamp((value - (i - 1) * per) / per, 0, 1), 1)
+		end
+	end
+	function api.color(col: Color3)
+		for _, c in cells do
+			c.fill.ImageColor3 = col
+		end
+	end
+	return api
+end
+
 function Match.build(ctx)
 	local m = UI.m
 	local root, scope = ctx.root, ctx.scope
@@ -129,7 +162,9 @@ function Match.build(ctx)
 		local ts = phone and m.micro + 1 or m.small
 		local function name(text, team, order)
 			local l = UI.label("strong", text, { Size = UDim2.fromScale(0, 1), AutomaticSize = Enum.AutomaticSize.X, TextSize = ts, TextColor3 = team == "ally" and ALLY or ENEMY, LayoutOrder = order, Parent = row })
+			-- capped width: long names end in "…" instead of running under the weapon name
 			UI.new("UISizeConstraint", { MaxSize = Vector2.new(phone and 90 or 130, 40), Parent = l })
+			l.TextTruncate = Enum.TextTruncate.AtEnd
 		end
 		name(e.killer, e.kt, 1)
 		local w = Catalog.get(e.weapon)
@@ -160,19 +195,22 @@ function Match.build(ctx)
 	local dmgNumbers = UI.box({ Name = "DamageNumbers", Size = UDim2.fromOffset(200, 120), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 60, 0.5, -10), Parent = hud })
 
 	---------------------------------------------------------------- vitals
-	local vitals = plate({ Name = "Vitals", Size = UDim2.fromOffset(phone and 210 or 290, phone and 64 or 82), AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, pad, 1, -pad), Parent = hud }, { edge = C.ink600, pad = phone and 8 or 12 })
+	local vitals = plate({ Name = "Vitals", Size = UDim2.fromOffset(phone and 230 or 330, phone and 64 or 82), AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, pad, 1, -pad), Parent = hud }, { edge = C.ink600, pad = phone and 8 or 12 })
 	vitals.ImageTransparency = 0.12
 	local hpRow = UI.box({ Size = UDim2.new(1, 0, 0.62, 0), Parent = vitals })
 	UI.icon("health", phone and 16 or 20, C.paper, { AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromScale(0, 0.5), Parent = hpRow })
 	local hpNum = UI.label("num", "100", { TextSize = phone and 26 or 36, Size = UDim2.fromOffset(70, 40), AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, phone and 22 or 28, 0.5, 0), Parent = hpRow })
-	local hpBar = UI.bar({ height = phone and 6 or 8, value = 100, max = 100, color = C.paper, size = UDim2.new(1, -(phone and 92 or 110), 0, phone and 6 or 8) })
+	local gaugeW = phone and 118 or 196
+	local hpBar = segBar(10, phone and 9 or 12, gaugeW, C.paper)
+	hpBar.set(100, 100)
 	hpBar.inst.AnchorPoint = Vector2.new(1, 0.5)
 	hpBar.inst.Position = UDim2.fromScale(1, 0.5)
 	hpBar.inst.Parent = hpRow
 	local arRow = UI.box({ Size = UDim2.new(1, 0, 0.38, 0), Position = UDim2.fromScale(0, 0.62), Parent = vitals })
 	UI.icon("shield", phone and 13 or 16, C.ally:Lerp(C.paper, 0.4), { AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 2, 0.5, 0), Parent = arRow })
 	local arNum = UI.label("mono", "50", { TextSize = m.small, Size = UDim2.fromOffset(40, 20), AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, phone and 22 or 28, 0.5, 0), TextColor3 = C.steel2, Parent = arRow })
-	local arBar = UI.bar({ height = 4, value = 50, max = 50, color = Color3.fromHex("#8FC3FF"), size = UDim2.new(1, -(phone and 92 or 110), 0, 4) })
+	local arBar = segBar(5, phone and 6 or 7, gaugeW, Color3.fromHex("#8FC3FF"))
+	arBar.set(50, 50)
 	arBar.inst.AnchorPoint = Vector2.new(1, 0.5)
 	arBar.inst.Position = UDim2.fromScale(1, 0.5)
 	arBar.inst.Parent = arRow
@@ -181,11 +219,37 @@ function Match.build(ctx)
 	local wpW = phone and 230 or 330
 	local weapon = plate({ Name = "Weapon", Size = UDim2.fromOffset(wpW, phone and 76 or 104), AnchorPoint = touch and Vector2.new(0.5, 1) or Vector2.new(1, 1), Position = touch and UDim2.new(0.5, 0, 1, -pad) or UDim2.new(1, -pad, 1, -pad), Parent = hud }, { edge = C.ink600, pad = phone and 8 or 12 })
 	weapon.ImageTransparency = 0.12
-	local wName = UI.label("h3", "", { Size = UDim2.new(0.6, 0, 0, m.h3 + 4), TextSize = phone and m.small + 1 or m.h3, Parent = weapon })
-	local wClass = UI.label("micro", "", { Size = UDim2.new(0.6, 0, 0, m.micro + 4), Position = UDim2.fromOffset(0, m.h3 + 2), Parent = weapon })
+	local markW = phone and 8 or 11
+	local wMark = UI.new("ImageLabel", { Name = "Mark", BackgroundTransparency = 1, ImageColor3 = C.signal, Size = UDim2.fromOffset(markW, m.h3), Position = UDim2.fromOffset(0, 2), Parent = weapon })
+	Icons.apply(wMark, "hatchSlant")
+	local wName = UI.label("h3", "", { Size = UDim2.new(0.6, -(markW + 6), 0, m.h3 + 4), Position = UDim2.fromOffset(markW + 6, 0), TextSize = phone and m.small + 1 or m.h3, Parent = weapon })
+	local wClass = UI.label("micro", "", { Size = UDim2.new(0.6, -(markW + 6), 0, m.micro + 4), Position = UDim2.fromOffset(markW + 6, m.h3 + 2), Parent = weapon })
 	local ammoBox = UI.box({ Size = UDim2.new(0.5, 0, 0, phone and 40 or 52), AnchorPoint = Vector2.new(1, 0), Position = UDim2.fromScale(1, 0), Parent = weapon })
 	local magNum = UI.label("num", "30", { TextSize = phone and 34 or 48, Size = UDim2.new(1, -(phone and 46 or 60), 1, 0), TextXAlignment = Enum.TextXAlignment.Right, Parent = ammoBox })
 	local resNum = UI.label("mono", "/ 120", { TextSize = phone and m.small or m.body, Size = UDim2.new(0, phone and 44 or 58, 0, 20), AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, 0, 1, -6), TextColor3 = C.steel2, Parent = ammoBox })
+	-- one mark per round in the magazine (capped at 40), spent rounds go dark from the left
+	local magTicks = UI.box({ Name = "MagTicks", Size = UDim2.new(0.5, 0, 0, phone and 4 or 5), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, 0, 0, (phone and 40 or 52) + 1), Parent = weapon })
+	UI.list("h", 2, { HorizontalAlignment = Enum.HorizontalAlignment.Right }).Parent = magTicks
+	local ticks, tickCap = {}, 0
+	local function setTicks(mag: number, cap: number, color: Color3)
+		local n = math.min(cap, 40)
+		if n ~= tickCap then
+			for _, t in ticks do
+				t:Destroy()
+			end
+			ticks = {}
+			tickCap = n
+			for i = 1, n do
+				ticks[i] = UI.fill(C.paper, { Name = "Round", Size = UDim2.new(1 / n, -2, 1, 0), LayoutOrder = i, Parent = magTicks })
+			end
+		end
+		local loaded = cap > 0 and math.ceil(mag / cap * n) or 0
+		for i, t in ticks do
+			local on = i > n - loaded
+			t.BackgroundColor3 = on and color or C.ink600
+			t.BackgroundTransparency = on and 0 or 0.35
+		end
+	end
 	local ammoState = UI.label("eyebrow", "", { Size = UDim2.new(1, 0, 0, m.micro + 6), AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, -(phone and 16 or 24)), TextColor3 = C.warn, Parent = weapon })
 	local reloadBar = UI.bar({ height = 3, value = 0, max = 1, color = C.signal, size = UDim2.new(1, 0, 0, 3) })
 	reloadBar.inst.AnchorPoint = Vector2.new(0, 1)
@@ -283,14 +347,38 @@ function Match.build(ctx)
 	local boardHead = UI.box({ Size = UDim2.new(1, 0, 0, m.h2 + 4), LayoutOrder = 1, Parent = boardCard })
 	local boardTitle = UI.label("h2", "Puntuaciones", { Size = UDim2.fromScale(0.6, 1), Parent = boardHead })
 	local boardMeta = UI.label("mono", "", { Size = UDim2.fromScale(0.4, 1), Position = UDim2.fromScale(0.6, 0), TextXAlignment = Enum.TextXAlignment.Right, Parent = boardHead })
+	-- The board is built once when it opens; while it stays open only the values change, so it never
+	-- flickers. A full rebuild only happens if a team's roster size changes.
+	local boardRefs = {}
+	local function boardTeams()
+		return training and { "ally" } or { "ally", "enemy" }
+	end
+	local function rosterOf(sum, team)
+		local list = {}
+		for _, p in sum.roster do
+			if p.team == team then
+				table.insert(list, p)
+			end
+		end
+		return list
+	end
+	local function paintRow(ref, p)
+		ref.row.ImageColor3 = p.me and C.signal:Lerp(C.ink700, 0.7) or C.ink800
+		local vals = { p.name, tostring(p.k), tostring(p.d), tostring(p.a), Util.num(p.score) }
+		for ci, lbl in ref.labels do
+			lbl.Text = vals[ci]
+		end
+		ref.labels[1].TextColor3 = p.me and C.paper or C.steel2
+	end
 	local function renderBoard()
 		for _, c in boardBody:GetChildren() do
 			c:Destroy()
 		end
+		table.clear(boardRefs)
 		local sum = Engine.summarize(match)
 		boardMeta.Text = mode.name .. " · " .. map.name .. " · " .. Util.clock(Engine.timeLeft(match)) .. " restantes"
-		UI.list(phone and "h" or "h", phone and 8 or 16, { HorizontalFlex = Enum.UIFlexAlignment.Fill, VerticalAlignment = Enum.VerticalAlignment.Top }).Parent = boardBody
-		for ti, team in training and { "ally" } or { "ally", "enemy" } do
+		UI.list("h", phone and 8 or 16, { HorizontalFlex = Enum.UIFlexAlignment.Fill, VerticalAlignment = Enum.VerticalAlignment.Top }).Parent = boardBody
+		for ti, team in boardTeams() do
 			local col = UI.box({ Size = UDim2.new(0, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = ti, Parent = boardBody })
 			UI.flex("fill").Parent = col
 			UI.list("v", 3).Parent = col
@@ -298,25 +386,41 @@ function Match.build(ctx)
 			local th = UI.box({ Size = UDim2.new(1, 0, 0, phone and 22 or 28), LayoutOrder = 0, Parent = col })
 			UI.fill(teamColor, { Size = UDim2.new(0, 4, 1, 0), Parent = th })
 			UI.label("h3", team == "ally" and (training and "Tú" or "Tu equipo") or "Rivales", { Size = UDim2.new(0.5, -10, 1, 0), Position = UDim2.fromOffset(10, 0), TextColor3 = teamColor, Parent = th })
-			UI.label("num", tostring(team == "ally" and match.scores.ally or match.scores.enemy), { Size = UDim2.fromScale(0.5, 1), Position = UDim2.fromScale(0.5, 0), TextXAlignment = Enum.TextXAlignment.Right, TextSize = m.h3, TextColor3 = teamColor, Visible = not training, Parent = th })
+			local score = UI.label("num", tostring(match.scores[team]), { Size = UDim2.fromScale(0.5, 1), Position = UDim2.fromScale(0.5, 0), TextXAlignment = Enum.TextXAlignment.Right, TextSize = m.h3, TextColor3 = teamColor, Visible = not training, Parent = th })
 			local cols = { { "Jugador", 0, 0.52, Enum.TextXAlignment.Left }, { "E", 0.52, 0.12 }, { "M", 0.64, 0.12 }, { "A", 0.76, 0.1 }, { "Pts", 0.86, 0.14 } }
 			local hr = UI.box({ Size = UDim2.new(1, 0, 0, 16), LayoutOrder = 1, Parent = col })
 			for _, c in cols do
 				UI.label("eyebrow", c[1], { Size = UDim2.fromScale(c[3], 1), Position = UDim2.fromScale(c[2], 0), TextXAlignment = c[4] or Enum.TextXAlignment.Right, TextSize = m.micro, Parent = hr })
 			end
-			local i = 0
-			for _, p in sum.roster do
-				if p.team == team then
-					i += 1
-					local row = UI.new("ImageLabel", { BackgroundTransparency = 1, ImageColor3 = p.me and C.signal:Lerp(C.ink700, 0.7) or C.ink800, Size = UDim2.new(1, 0, 0, phone and 26 or 32), LayoutOrder = 1 + i, Parent = col })
-					Icons.apply(row, "rounded")
-					row.SliceScale = 0.15
-					UI.pad(0, 8).Parent = row
-					local vals = { p.name, tostring(p.k), tostring(p.d), tostring(p.a), Util.num(p.score) }
-					for ci, c in cols do
-						UI.label(ci == 1 and "strong" or "mono", vals[ci], { Size = UDim2.fromScale(c[3], 1), Position = UDim2.fromScale(c[2], 0), TextXAlignment = c[4] or Enum.TextXAlignment.Right, TextSize = phone and m.micro + 1 or m.small, TextColor3 = ci == 1 and (p.me and C.paper or C.steel2) or C.paper, Parent = row })
-					end
+			local refs = { score = score, rows = {} }
+			boardRefs[team] = refs
+			for i, p in rosterOf(sum, team) do
+				local row = UI.new("ImageLabel", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, phone and 26 or 32), LayoutOrder = 1 + i, Parent = col })
+				Icons.apply(row, "rounded")
+				row.SliceScale = 0.15
+				UI.pad(0, 8).Parent = row
+				local labels = {}
+				for ci, c in cols do
+					labels[ci] = UI.label(ci == 1 and "strong" or "mono", "", { Size = UDim2.fromScale(c[3], 1), Position = UDim2.fromScale(c[2], 0), TextXAlignment = c[4] or Enum.TextXAlignment.Right, TextSize = phone and m.micro + 1 or m.small, TextColor3 = C.paper, Parent = row })
 				end
+				local ref = { row = row, labels = labels }
+				refs.rows[i] = ref
+				paintRow(ref, p)
+			end
+		end
+	end
+	local function updateBoard()
+		local sum = Engine.summarize(match)
+		for _, team in boardTeams() do
+			local refs = boardRefs[team]
+			local list = rosterOf(sum, team)
+			if not refs or #refs.rows ~= #list then
+				renderBoard()
+				return
+			end
+			refs.score.Text = tostring(match.scores[team])
+			for i, p in list do
+				paintRow(refs.rows[i], p)
 			end
 		end
 	end
@@ -336,6 +440,7 @@ function Match.build(ctx)
 	local paused = false
 	local boardHeld = false
 	local boardToggled = false
+	local boardNext = 0
 	local finished = false
 	local lastFeedId = 0
 	local killAt, hitAt, lastHitLethal = -99, -99, false
@@ -419,7 +524,7 @@ function Match.build(ctx)
 						end,
 					})
 				end)
-				UI.para("En una partida online el juego seguiría en curso. En esta demo la pausa detiene la simulación.", { TextSize = m.micro + 1, LayoutOrder = 4, Parent = body })
+				UI.para("Mientras este menú está abierto, la partida queda en pausa.", { TextSize = m.micro + 1, LayoutOrder = 4, Parent = body })
 			end,
 		})
 	end
@@ -665,10 +770,10 @@ function Match.build(ctx)
 		hpNum.Text = tostring(me.hp)
 		local low = me.hp <= 30 and me.alive
 		hpNum.TextColor3 = low and C.bad or C.paper
-		hpBar.set(me.hp, 100, false)
+		hpBar.set(me.hp, 100)
 		hpBar.color(low and C.bad or C.paper)
 		arNum.Text = tostring(me.armor)
-		arBar.set(me.armor, 50, false)
+		arBar.set(me.armor, 50)
 		if me.hp < lastHp and not low then
 			-- brief flash on the bar handled by the vignette
 		end
@@ -684,6 +789,7 @@ function Match.build(ctx)
 		resNum.Text = "/ " .. slot.reserve
 		local lowAmmo = slot.mag > 0 and slot.mag <= math.ceil(w.stats.mag * 0.25)
 		magNum.TextColor3 = slot.mag == 0 and C.bad or (lowAmmo and C.warn or C.paper)
+		setTicks(slot.mag, w.stats.mag, magNum.TextColor3)
 		if match.reload then
 			ammoState.Text = UI.upper("Recargando")
 			ammoState.TextColor3 = C.signal
@@ -753,8 +859,17 @@ function Match.build(ctx)
 			end
 		end
 		local showBoard = (boardHeld or boardToggled) and match.phase ~= "ended"
+		-- kept live while held: scores, clock and rows keep moving during the match
 		if showBoard and not board.Visible then
 			renderBoard()
+			boardNext = os.clock() + 0.5
+		elseif showBoard and os.clock() >= boardNext then
+			updateBoard()
+			boardNext = os.clock() + 0.5
+		end
+		if showBoard then
+			-- the clock follows the top bar every frame; the rows update on the half-second tick above
+			boardMeta.Text = mode.name .. " · " .. map.name .. " · " .. Util.clock(Engine.timeLeft(match)) .. " restantes"
 		end
 		board.Visible = showBoard
 		offline.Visible = Store.state.network ~= "online" and match.phase ~= "ended"

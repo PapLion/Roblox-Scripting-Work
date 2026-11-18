@@ -40,7 +40,8 @@ local function modeChip(ctx, order)
 		local mode = World.mode(s.play.mode)
 		local map = World.map(s.play.map)
 		title.Text = UI.upper(mode.name .. "  ·  " .. map.name)
-		sub.Text = mode.short .. "  ·  " .. mode.length .. "  ·  Cambiar modo o mapa"
+		-- the phone chip is narrow: the action shortens to one word (the chevron already marks it)
+		sub.Text = mode.short .. "  ·  " .. mode.length .. "  ·  " .. (UI.isPhone() and "Cambiar" or "Cambiar modo o mapa")
 		require(PivotUI.Icons).apply(icon, MODE_ICON[mode.id])
 		b.Interactable = not Store.mmBusy()
 		b.ImageTransparency = Store.mmBusy() and 0.5 or 0
@@ -96,14 +97,23 @@ local function missionsPanel(ctx, order, compact)
 			if mission.period == "daily" then
 				i += 1
 				local st = Store.missionState(mission)
-				local row = UI.box({ Size = UDim2.new(1, 0, 0, compact and 34 or 42), LayoutOrder = i, Parent = list })
-				local txt = UI.box({ Size = UDim2.new(1, st.claimable and -(compact and 92 or 112) or -58, 1, 0), Parent = row })
+				-- a claimable row on a phone gets room for a two-line title next to the button
+				local tall = compact and st.claimable
+				local row = UI.box({ Size = UDim2.new(1, 0, 0, tall and 46 or (compact and 34 or 42)), LayoutOrder = i, Parent = list })
+				local txt = UI.box({ Size = UDim2.new(1, st.claimable and -(compact and 108 or 112) or -58, 1, 0), Parent = row })
 				UI.list("v", 5, { VerticalAlignment = Enum.VerticalAlignment.Center }).Parent = txt
 				local title = UI.label("small", mission.title, { LayoutOrder = 1, TextColor3 = st.claimed and C.steel or C.paper, Parent = txt })
+				if tall then
+					title.TextWrapped = true
+					title.TextTruncate = Enum.TextTruncate.None
+					title.AutomaticSize = Enum.AutomaticSize.Y
+					title.Size = UDim2.new(1, 0, 0, 0)
+					title.LineHeight = 0.95
+				end
 				local bar = UI.bar({ height = 4, value = st.progress, max = mission.target, color = st.claimed and C.ink600 or (st.done and C.brass or C.signal), order = 2 })
 				bar.inst.Parent = txt
 				if st.claimable then
-					local claim = UI.button({ text = "Reclamar", variant = "claim", size = "sm", width = UDim.new(0, compact and 84 or 104), onClick = function(api)
+					local claim = UI.button({ text = "Reclamar", variant = "claim", size = "sm", width = UDim.new(0, compact and 100 or 104), onClick = function(api)
 						local ok, info = Store.dispatch({ type = "CLAIM_MISSION", id = mission.id })
 						if ok then
 							UI.sfx("reward")
@@ -137,11 +147,13 @@ local function newsPanel(ctx, order, featuredOnly)
 	UI.list("v", 10).Parent = panel
 	UI.header("Novedades", { order = 1 }).Parent = panel
 	local f = World.news[1]
-	local feat = UI.new("ImageButton", { Name = "Featured", BackgroundTransparency = 1, ImageColor3 = C.ink600, AutoButtonColor = false, Size = UDim2.new(1, 0, 0, 104), LayoutOrder = 2, ClipsDescendants = true, Parent = panel })
+	-- grows with the copy (never below 104) so the last line is never clipped
+	local feat = UI.new("ImageButton", { Name = "Featured", BackgroundTransparency = 1, ImageColor3 = C.ink600, AutoButtonColor = false, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 2, ClipsDescendants = true, Parent = panel })
+	UI.new("UISizeConstraint", { MinSize = Vector2.new(0, 104), Parent = feat })
 	require(PivotUI.Icons).apply(feat, "panelTone")
 	feat.SliceScale = 0.35
-	local plan = Parts.mapPreview("dock9", { Size = UDim2.new(0, 96, 1, -12), Position = UDim2.new(1, -102, 0, 6), Parent = feat })
-	local txt = UI.box({ Size = UDim2.new(1, -120, 1, 0), Parent = feat })
+	local plan = Parts.mapPreview("dock9", { Size = UDim2.fromOffset(96, 92), Position = UDim2.new(1, -102, 0, 6), Parent = feat })
+	local txt = UI.box({ Size = UDim2.new(1, -120, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, Parent = feat })
 	UI.pad(10, 0, 10, 12).Parent = txt
 	UI.list("v", 4).Parent = txt
 	local tagRow = UI.box({ Size = UDim2.new(1, 0, 0, 20), LayoutOrder = 1, Parent = txt })
@@ -200,12 +212,12 @@ function Home.build(ctx)
 		newsPanel(ctx, 2, tablet).Parent = right
 		-- centre column: loadout + mode + play anchored to the bottom
 		local center = UI.box({ Name = "Center", Size = UDim2.new(1 - colW * 2, -m.gap * 4, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -m.pad), Parent = root })
-		UI.new("UISizeConstraint", { MaxSize = Vector2.new(560, math.huge), Parent = center })
+		UI.new("UISizeConstraint", { MaxSize = Vector2.new(600, math.huge), Parent = center })
 		UI.list("v", m.gapSm + 2).Parent = center
 		local eq = UI.box({ Size = UDim2.new(1, 0, 0, m.micro + 6), LayoutOrder = 1, Parent = center })
 		UI.list("h", 8).Parent = eq
 		UI.label("eyebrow", "Equipamiento", { Size = UDim2.fromScale(0, 1), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 1, Parent = eq })
-		UI.label("micro", "·  toca un hueco para cambiarlo", { Size = UDim2.fromScale(0, 1), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 2, Parent = eq })
+		UI.label("micro", "·  elige un hueco para cambiarlo", { Size = UDim2.fromScale(0, 1), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 2, Parent = eq })
 		Parts.loadoutStrip(scope, { order = 2, height = tablet and 76 or 88, onSlot = function(slot)
 			ctx.go("armory", { slot = slot })
 		end }).Parent = center

@@ -1,5 +1,5 @@
 -- Settings with a draft: Apply commits, Cancel discards, Restore loads defaults (still needs Apply).
--- Every row is tagged: DEMO = changes this showcase when applied; JUEGO = represents a game option only.
+-- Every row takes effect when applied; nothing here is decorative.
 -- Leaving the tab with unapplied changes asks to discard them. Preferences last for the session.
 -- Settings.build also works embedded (pause menu): ctx.embedded + ctx.onClose.
 
@@ -26,36 +26,34 @@ end
 
 Settings.schema = {
 	{ id = "audio", label = "Audio", icon = "sound", rows = {
-		{ key = "master", label = "Volumen general", kind = "slider", min = 0, max = 100, step = 5, format = pct, scope = "demo", help = "Afecta a los sonidos de la interfaz y de la partida." },
-		{ key = "effects", label = "Efectos", kind = "slider", min = 0, max = 100, step = 5, format = pct, scope = "demo" },
-		{ key = "music", label = "Música", kind = "slider", min = 0, max = 100, step = 5, format = pct, scope = "game", help = "La demo no incluye música." },
+		{ key = "master", label = "Volumen general", kind = "slider", min = 0, max = 100, step = 5, format = pct, help = "Afecta a los sonidos de la interfaz y de la partida." },
+		{ key = "effects", label = "Efectos", kind = "slider", min = 0, max = 100, step = 5, format = pct },
 	} },
 	{ id = "graphics", label = "Gráficos", icon = "monitor", rows = {
-		{ key = "quality", label = "Calidad", kind = "choice", options = { { "low", "Baja" }, { "medium", "Media" }, { "high", "Alta" } }, scope = "demo", help = "Baja quita sombras, bloom y el decorado lejano del mapa." },
+		{ key = "quality", label = "Calidad", kind = "choice", options = { { "low", "Baja" }, { "medium", "Media" }, { "high", "Alta" } }, help = "Baja quita sombras, bloom y el decorado lejano del mapa." },
 		{ key = "fov", label = "Campo de visión", kind = "slider", min = 70, max = 100, step = 1, format = function(v)
 			return v .. "°"
-		end, scope = "demo", help = "Se aplica a la cámara de la partida." },
-		{ key = "fpsLimit", label = "Límite de FPS", kind = "choice", options = { { "30", "30" }, { "60", "60" }, { "120", "120" }, { "none", "Sin límite" } }, scope = "game" },
+		end, help = "Se aplica a la cámara de la partida." },
 	} },
 	{ id = "controls", label = "Controles", icon = "mouse", rows = {
 		{ key = "sensitivity", label = "Sensibilidad", kind = "slider", min = 0.2, max = 3, step = 0.1, format = function(v)
 			return string.format("%.1f", v):gsub("%.", ",")
-		end, scope = "demo", help = "Cuánto gira la cámara de la partida al mover el ratón." },
-		{ key = "invertY", label = "Invertir eje vertical", kind = "toggle", scope = "demo" },
-		{ key = "touch", label = "Controles táctiles", kind = "choice", options = { { "auto", "Automático" }, { "always", "Siempre" }, { "never", "Nunca" } }, scope = "demo", help = "Muestra los botones táctiles del HUD y la navegación compacta." },
+		end, help = "Cuánto gira la cámara de la partida al mover el ratón." },
+		{ key = "invertY", label = "Invertir eje vertical", kind = "toggle" },
+		{ key = "touch", label = "Controles táctiles", kind = "choice", options = { { "auto", "Automático" }, { "always", "Siempre" }, { "never", "Nunca" } }, help = "Muestra los botones táctiles del HUD y la navegación compacta." },
 	} },
 	{ id = "interface", label = "Interfaz", icon = "layout", rows = {
-		{ key = "hudScale", label = "Escala del HUD", kind = "slider", min = 80, max = 130, step = 5, format = pct, scope = "demo" },
-		{ key = "crosshair", label = "Mira", kind = "choice", options = { { "cross", "Cruz" }, { "dot", "Punto" }, { "circle", "Círculo" } }, scope = "demo" },
-		{ key = "crosshairSize", label = "Tamaño de la mira", kind = "slider", min = 60, max = 160, step = 10, format = pct, scope = "demo" },
-		{ key = "crosshairColor", label = "Color de la mira", kind = "swatch", options = { "white", "green", "cyan", "yellow" }, scope = "demo" },
-		{ key = "killfeed", label = "Registro de eliminaciones", kind = "toggle", scope = "demo" },
-		{ key = "damageNumbers", label = "Números de daño", kind = "toggle", scope = "demo" },
+		{ key = "hudScale", label = "Escala del HUD", kind = "slider", min = 80, max = 130, step = 5, format = pct },
+		{ key = "crosshair", label = "Mira", kind = "choice", options = { { "cross", "Cruz" }, { "dot", "Punto" }, { "circle", "Círculo" } } },
+		{ key = "crosshairSize", label = "Tamaño de la mira", kind = "slider", min = 60, max = 160, step = 10, format = pct },
+		{ key = "crosshairColor", label = "Color de la mira", kind = "swatch", options = { "white", "green", "cyan", "yellow" } },
+		{ key = "killfeed", label = "Registro de eliminaciones", kind = "toggle" },
+		{ key = "damageNumbers", label = "Números de daño", kind = "toggle" },
 	} },
 	{ id = "accessibility", label = "Accesibilidad", icon = "accessibility", rows = {
-		{ key = "reducedMotion", label = "Movimiento reducido", kind = "toggle", scope = "demo", help = "Quita animaciones, giros y balanceos; los cambios son directos." },
-		{ key = "colorblind", label = "Colores para daltonismo", kind = "toggle", scope = "demo", help = "Equipos en azul y ámbar en lugar de azul y rojo." },
-		{ key = "screenShake", label = "Vibración de cámara", kind = "toggle", scope = "demo", help = "Retroceso visible de la cámara al disparar y recibir daño." },
+		{ key = "reducedMotion", label = "Movimiento reducido", kind = "toggle", help = "Quita animaciones, giros y balanceos; los cambios son directos." },
+		{ key = "colorblind", label = "Colores para daltonismo", kind = "toggle", help = "Equipos en azul y ámbar en lugar de azul y rojo." },
+		{ key = "screenShake", label = "Vibración de cámara", kind = "toggle", help = "Retroceso visible de la cámara al disparar y recibir daño." },
 	} },
 }
 
@@ -101,12 +99,13 @@ function Settings.build(ctx)
 
 	local nav, seg
 	if navW > 0 then
-		nav = UI.surface({ Name = "Groups", Size = UDim2.new(navW, 0, 1, -(footerH + m.pad)), Parent = root }, { edge = C.ink700, pad = 10 })
+		-- side panels hug their content; only the rows column runs the full height (it scrolls)
+		nav = UI.surface({ Name = "Groups", Size = UDim2.new(navW, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, Parent = root }, { edge = C.ink700, pad = 10 })
 		UI.list("v", 4).Parent = nav
 	end
 	local body = UI.scroll({ Name = "Rows", Size = UDim2.new(1 - navW - previewW, -m.gap * ((navW > 0 and 1 or 0) + (previewW > 0 and 1 or 0)), 1, -(footerH + m.pad)), Position = UDim2.new(navW, navW > 0 and m.gap or 0, 0, 0), ScrollBarThickness = 3, Parent = root })
 	UI.pad(0, 8, 0, 0).Parent = body
-	local preview = previewW > 0 and UI.surface({ Name = "Preview", Size = UDim2.new(previewW, 0, 1, -(footerH + m.pad)), AnchorPoint = Vector2.new(1, 0), Position = UDim2.fromScale(1, 0), Parent = root }, { edge = C.ink700, pad = 14 }) or nil
+	local preview = previewW > 0 and UI.surface({ Name = "Preview", Size = UDim2.new(previewW, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, AnchorPoint = Vector2.new(1, 0), Position = UDim2.fromScale(1, 0), Parent = root }, { edge = C.ink700, pad = 14 }) or nil
 
 	-- footer
 	local footer = UI.surface({ Name = "Footer", Size = UDim2.new(1, 0, 0, footerH), AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, -m.pad * 0.5), Parent = root }, { edge = C.ink700, pad = math.floor(m.pad / 2), cut = 0.35 })
@@ -123,7 +122,7 @@ function Settings.build(ctx)
 	local function dirty()
 		return not Util.equal(draft, Store.state.settings)
 	end
-	local reset = UI.button({ text = phone and "Por defecto" or "Restablecer", icon = "refresh", variant = "ghost", order = 1, onClick = function()
+	local reset = UI.button({ text = "Restablecer", icon = "refresh", variant = "ghost", order = 1, onClick = function()
 		draft = Util.deepCopy(Store.defaultSettings)
 		renderRows()
 		paintFooter()
@@ -164,10 +163,6 @@ function Settings.build(ctx)
 		end
 	end
 
-	local function scopeTag(kind)
-		return UI.tag(kind == "demo" and "Demo" or "Juego", kind == "demo" and C.ok or C.steel, { height = m.micro + 6 })
-	end
-
 	function renderRows()
 		for _, c in body:GetChildren() do
 			if c:IsA("GuiObject") or c:IsA("UIListLayout") then
@@ -184,16 +179,6 @@ function Settings.build(ctx)
 		end
 		local head = UI.header(g.label, { order = 0, size = "h2" })
 		head.Parent = body
-		local legend = UI.box({ Size = UDim2.new(1, 0, 0, m.micro + 8), LayoutOrder = 1, Parent = body })
-		UI.list("h", 6).Parent = legend
-		local t1 = scopeTag("demo")
-		t1.LayoutOrder = 1
-		t1.Parent = legend
-		UI.label("micro", "cambia esta demo al aplicar", { Size = UDim2.fromScale(0, 1), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 2, Parent = legend })
-		local t2 = scopeTag("game")
-		t2.LayoutOrder = 3
-		t2.Parent = legend
-		UI.label("micro", "opción del juego, sin efecto aquí", { Size = UDim2.fromScale(0, 1), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 4, Parent = legend })
 		local values = draft[g.id]
 		for i, row in g.rows do
 			local r = UI.surface({ Name = "Row_" .. row.key, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 1 + i, Parent = body }, { edge = C.ink700, pad = phone and 10 or 14, cut = 0.25 })
@@ -201,9 +186,6 @@ function Settings.build(ctx)
 			local labelBox = UI.box({ Size = UDim2.new(0.42, 0, 1, 0), Parent = line })
 			UI.list("h", 8).Parent = labelBox
 			UI.label("strong", row.label, { Size = UDim2.new(0, 0, 1, 0), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 1, TextSize = phone and m.small or m.body, Parent = labelBox })
-			local tag = scopeTag(row.scope)
-			tag.LayoutOrder = 2
-			tag.Parent = labelBox
 			local ctl = UI.box({ Size = UDim2.new(0.58, 0, 1, 0), Position = UDim2.fromScale(0.42, 0), Parent = line })
 			local function set(v)
 				values[row.key] = v
@@ -263,7 +245,7 @@ function Settings.build(ctx)
 			local keys = UI.surface({ Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 50, Parent = body }, { edge = C.ink700, pad = 14, cut = 0.25 })
 			UI.list("v", 6).Parent = keys
 			UI.label("eyebrow", "Teclas de la partida", { LayoutOrder = 1, Parent = keys })
-			UI.para("Clic o Espacio dispara · clic derecho apunta · R recarga · 1 / 2 o rueda cambian de arma · G apoyo · Tab puntuaciones · P pausa. La reasignación de teclas es una opción del juego no incluida en la demo.", { TextSize = m.small, LayoutOrder = 2, Parent = keys })
+			UI.para("Clic o Espacio dispara · clic derecho apunta · R recarga · 1 / 2 o rueda cambian de arma · G apoyo · Tab puntuaciones · P pausa.", { TextSize = m.small, LayoutOrder = 2, Parent = keys })
 		end
 	end
 

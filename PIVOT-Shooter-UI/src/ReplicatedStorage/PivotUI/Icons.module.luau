@@ -6,7 +6,7 @@ local Icons = {}
 
 -- Uploaded atlas id. While it is empty the local development copy in Studio's content folder is used
 -- (content/textures/pivot/pivot_atlas.png), which only exists on the machine that built the project.
-Icons.uploaded = ""
+Icons.uploaded = "rbxassetid://112649700257332"
 Icons.image = Icons.uploaded ~= "" and Icons.uploaded or "rbxasset://textures/pivot/pivot_atlas.png"
 
 -- 64 px icon cells, 16 per row, in this exact order (keep in sync with ICONS in build_atlas.py).
@@ -15,7 +15,7 @@ local ORDER = string.split(
 		.. "chevronDown chevronUp arrowLeft arrowRight search filter star info warning wifi wifiOff refresh clock users userPlus logout "
 		.. "crown skull eye pause trophy shield health bullet reload swap crate medkit aim fire scoreboard map "
 		.. "compare receipt gift sound monitor mouse layout accessibility keyboard touch flag bolt duel target dot menu "
-		.. "history external palette tag sparkle ready notReady hourglass gamepadOff kick scope rotate",
+		.. "history external palette tag sparkle ready notReady hourglass gamepadOff kick scope rotate mvp",
 	" "
 )
 
@@ -36,6 +36,11 @@ local big = {
 	pattern_contour = { 256, 768, 256, 128 }, pattern_ember = { 512, 768, 256, 128 }, fadeRight = { 256, 896, 512, 32 },
 	-- two-tone: tint = border colour, fill comes out at 62 % of it
 	panelTone = { 768, 640, 128, 128 }, btnTone = { 896, 640, 128, 128 },
+	-- dock-manifest pieces: scope brackets, forward-slanted primary button, cargo tag, rubber stamp,
+	-- paper tear-off edge (tile), hazard block with the same slant, corrugated container ribs (tile)
+	brackets = { 768, 768, 128, 128 }, btnSlant = { 896, 776, 128, 112 }, btnSlantStroke = { 768, 900, 128, 120 }, -- fill cropped inside the shape (rows 8-119), stroke to its rows (4-123)
+	tagCargo = { 896, 896, 128, 128 }, stamp = { 256, 928, 128, 96 }, perforation = { 384, 928, 32, 16 },
+	hatchSlant = { 416, 928, 64, 96 }, ribs = { 480, 928, 64, 96 },
 }
 for k, v in big do
 	rects[k] = v
@@ -52,6 +57,16 @@ Icons.slice = {
 	pill = Rect.new(63, 63, 65, 65),
 	rounded = Rect.new(24, 24, 104, 104),
 	roundedStroke = Rect.new(24, 24, 104, 104),
+	brackets = Rect.new(40, 40, 88, 88),
+	-- slanted buttons are a 3-slice (columns only, full height): each side column holds its whole diagonal
+	-- and stretches as one piece, so the edge stays a single straight line at any height. A 9-slice would
+	-- split it into corner + edge + corner and leave a one-pixel step at the bottom. The fill is cropped 4 rows
+	-- inside the drawn shape: its top and bottom edges are the rect edges, so the downscaled (mipmapped) side
+	-- columns never mix in the transparent margin, which left a faint notch at the top-right corner.
+	btnSlant = Rect.new(32, 0, 96, 112),
+	btnSlantStroke = Rect.new(32, 0, 96, 120),
+	tagCargo = Rect.new(48, 32, 100, 96),
+	stamp = Rect.new(28, 28, 100, 68),
 }
 
 function Icons.has(name: string): boolean

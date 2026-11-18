@@ -42,7 +42,7 @@ local function missionCard(mission, order)
 	local tile = UI.fill(st.claimed and C.ink800 or (st.done and C.brass:Lerp(C.ink800, 0.75) or C.ink800), { Size = UDim2.fromOffset(phone and 36 or 46, phone and 36 or 46), LayoutOrder = 1, Parent = card })
 	UI.corner(5).Parent = tile
 	UI.icon(st.claimed and "check" or (STAT_ICON[mission.stat] or "flag"), phone and 18 or 22, st.claimed and C.ok or (st.done and C.brass or C.steel2), { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Parent = tile })
-	local actionW = phone and 96 or 130
+	local actionW = phone and 116 or 156
 	local txt = UI.box({ Size = UDim2.new(1, -(phone and 36 or 46) - actionW - 2 * (phone and 10 or 14), 1, 0), LayoutOrder = 2, Parent = card })
 	UI.list("v", 5, { VerticalAlignment = Enum.VerticalAlignment.Center }).Parent = txt
 	UI.label("title", mission.title, { LayoutOrder = 1, TextSize = phone and m.small + 1 or m.body, TextColor3 = st.claimed and C.steel or C.paper, Parent = txt })
@@ -104,7 +104,8 @@ function Missions.build(ctx)
 	local leftW = phone and 0.36 or 0.3
 
 	-- progression panel
-	local left = UI.surface({ Name = "Progress", Size = UDim2.new(leftW, 0, 1, -m.pad), Parent = root }, { edge = C.ink700, pad = phone and 12 or 18 })
+	-- sized to its content so the panel never shows an empty lower half
+	local left = UI.surface({ Name = "Progress", Size = UDim2.new(leftW, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, Parent = root }, { edge = C.ink700, pad = phone and 12 or 18 })
 	UI.list("v", m.gap).Parent = left
 	local lists = UI.scroll({ Name = "Lists", Size = UDim2.new(1 - leftW, -m.gap, 1, -m.pad), AnchorPoint = Vector2.new(1, 0), Position = UDim2.fromScale(1, 0), ScrollBarThickness = 3, Parent = root })
 	UI.pad(0, 6, 0, 0).Parent = lists
@@ -124,7 +125,7 @@ function Missions.build(ctx)
 		end
 		table.clear(timers)
 		local p = Store.state.profile
-		UI.header("Progreso", { index = "05", order = 1 }).Parent = left
+		UI.header("Progreso", { order = 1 }).Parent = left
 		local lv = UI.box({ Size = UDim2.new(1, 0, 0, phone and 60 or 92), LayoutOrder = 2, Parent = left })
 		UI.list("h", 12, { VerticalAlignment = Enum.VerticalAlignment.Bottom }).Parent = lv
 		local big = UI.label("num", tostring(p.level), { TextScaled = true, Size = UDim2.fromOffset(phone and 54 or 86, phone and 60 or 92), LayoutOrder = 1, TextColor3 = C.paper, Parent = lv })

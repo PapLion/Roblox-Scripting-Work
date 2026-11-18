@@ -187,7 +187,7 @@ function UI.label(kind: string, text: string, props)
 	if kind == "h1" or kind == "h2" or kind == "h3" or kind == "eyebrow" then
 		text = UI.upper(text)
 	end
-	return new("TextLabel", merge({
+	local label = new("TextLabel", merge({
 		Name = "Label",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
@@ -201,6 +201,12 @@ function UI.label(kind: string, text: string, props)
 		Size = UDim2.new(1, 0, 0, math.ceil(size * 1.3)),
 		LineHeight = 1.05,
 	}, props))
+	-- a label that sizes itself to its text never truncates: inside a panel that is scaling in, the width
+	-- is measured a few pixels short and "AtEnd" would clip the last characters for good
+	if label.AutomaticSize == Enum.AutomaticSize.X or label.AutomaticSize == Enum.AutomaticSize.XY then
+		label.TextTruncate = Enum.TextTruncate.None
+	end
+	return label
 end
 
 -- Wrapped paragraph that grows to fit its text.
@@ -270,7 +276,8 @@ function UI.header(title: string, opts)
 	local row = UI.box({ Name = "Header", Size = UDim2.new(1, 0, 0, h), LayoutOrder = opts.order or 0 })
 	local left = UI.box({ Name = "Left", Size = UDim2.new(1, 0, 1, 0), Parent = row })
 	UI.list("h", 8).Parent = left
-	UI.fill(opts.tick or C.signal, { Name = "Tick", Size = UDim2.fromOffset(3, math.floor(h * 0.62)), LayoutOrder = 1, Parent = left })
+	local tick = new("ImageLabel", { Name = "Tick", BackgroundTransparency = 1, ImageColor3 = opts.tick or C.signal, Size = UDim2.fromOffset(math.floor(h * 0.4), math.floor(h * 0.6)), LayoutOrder = 1, Parent = left })
+	Icons.apply(tick, "hatchSlant")
 	if opts.index then
 		UI.label("mono", opts.index, { Size = UDim2.new(0, 0, 1, 0), AutomaticSize = Enum.AutomaticSize.X, TextColor3 = C.steel, LayoutOrder = 2, Parent = left })
 	end
@@ -333,13 +340,20 @@ end
 
 ---------------------------------------------------------------- button
 local VARIANTS = {
-	primary = { fill = C.signal, hover = C.signal2, press = C.signalDeep, text = C.signalInk, font = F.display, upper = true },
+	primary = { fill = C.signal, hover = C.signal2, press = C.signalDeep, text = C.signalInk, font = F.display, upper = true, slant = true, hatch = true },
 	secondary = { fill = C.ink700, hover = C.ink600, press = C.ink800, text = C.paper, font = F.bodySemi },
 	ghost = { fill = C.ink850, hover = C.ink800, press = C.ink900, text = C.steel2, textHover = C.paper, font = F.bodySemi, edge = C.ink600 },
-	light = { fill = C.paper, hover = C.white, press = C.paper2, text = C.paperInk, font = F.display, upper = true },
+	light = { fill = C.paper, hover = C.white, press = C.paper2, text = C.paperInk, font = F.display, upper = true, slant = true },
 	danger = { fill = Color3.fromHex("#3B2024"), hover = Color3.fromHex("#4C252A"), press = Color3.fromHex("#2E191C"), text = Color3.fromHex("#FFB0B2"), font = F.bodySemi, edge = C.bad },
-	claim = { fill = C.brass, hover = Color3.fromHex("#F0C978"), press = Color3.fromHex("#B88E3E"), text = C.signalInk, font = F.display, upper = true },
+	claim = { fill = C.brass, hover = Color3.fromHex("#F0C978"), press = Color3.fromHex("#B88E3E"), text = C.signalInk, font = F.display, upper = true, slant = true },
 }
+
+-- Controls that draw their own focus state point Roblox's selection image at an empty frame,
+-- so keyboard/gamepad focus shows one indicator, not the generic ring on top of the custom one.
+local noRing = new("Frame", { Name = "NoSelectionRing", BackgroundTransparency = 1, Size = UDim2.fromScale(0, 0) })
+function UI.ownFocus(inst)
+	inst.SelectionImageObject = noRing
+end
 
 --[[ UI.button(opts)
 	text, icon, variant (primary|secondary|ghost|light|danger|claim), size (sm|md|lg),
@@ -354,6 +368,11 @@ function UI.button(opts)
 	local st = { hover = false, press = false, focus = false, disabled = opts.disabled == true, loading = opts.loading == true, selected = opts.selected == true, text = opts.text or "" }
 
 	local cut = h >= 50 and 0.42 or 0.34
+	-- Action variants lean forward (parallelogram); the rest are chamfered plates. Icon-only squares
+	-- stay plates so toolbars and steppers keep a calm, square rhythm.
+	local slanted = v.slant and opts.text ~= nil and opts.text ~= ""
+	local shapeName = slanted and "btnSlant" or "btnCut"
+	local strokeName = slanted and "btnSlantStroke" or "btnCutStroke"
 	-- the button image is the cut fill itself; outline and focus ring are full-size overlays
 	local btn = new("ImageButton", {
 		Name = opts.name or "Button",
@@ -365,20 +384,40 @@ function UI.button(opts)
 		LayoutOrder = opts.order or 0,
 		Selectable = true,
 	})
-	Icons.apply(btn, "btnCut")
+	Icons.apply(btn, shapeName)
 	btn.SliceScale = cut
 	local fill = btn
 	local edge
 	if v.edge then
-		edge = UI.shape("btnCutStroke", v.edge, { Name = "Edge", SliceScale = cut, Parent = btn })
+		edge = UI.shape(strokeName, v.edge, { Name = "Edge", SliceScale = cut, Parent = btn })
 	end
-	local ring = UI.shape("btnCutStroke", C.paper, { Name = "Focus", SliceScale = cut, Visible = false, ZIndex = 3, Parent = btn })
+	-- focus: plates get a full outline; slanted buttons get a bar along the bottom edge (in the label
+	-- colour, inside the paint), which reads clearly on the bright fills and has no slanted joins
+	local ring
+	if slanted then
+		local inset = math.ceil(30 * cut) + 4
+		ring = new("Frame", {
+			Name = "Focus",
+			BackgroundColor3 = v.text,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, -2 * inset, 0, 3),
+			Position = UDim2.new(0, inset, 1, -6),
+			Visible = false,
+			ZIndex = 3,
+			Parent = btn,
+		})
+	else
+		ring = UI.shape(strokeName, C.paper, { Name = "Focus", SliceScale = cut, Visible = false, ZIndex = 3, Parent = btn })
+	end
+	UI.ownFocus(btn)
 	local scale = new("UIScale", { Parent = btn })
 	if opts.flex then
 		UI.flex(opts.flex == "grow" and "grow" or "fill").Parent = btn
 	end
 
 	local padX = opts.compact and math.floor(h * 0.3) or math.floor(h * 0.48)
+	-- the slanted edges eat 24/128 of the slice on each side: keep the content clear of them
+	local slantInset = slanted and math.ceil(24 * cut) or 0
 	local content = UI.box({
 		Name = "Content",
 		ZIndex = 2,
@@ -386,8 +425,25 @@ function UI.button(opts)
 		AutomaticSize = opts.width and Enum.AutomaticSize.None or Enum.AutomaticSize.X,
 		Parent = btn,
 	})
-	UI.pad(0, padX).Parent = content
+	-- auto-width buttons grow to clear the slant; fixed-width ones keep their room for the label
+	local sidePad = opts.width and math.max(padX, slantInset + 4) or padX + slantInset
+	UI.pad(0, sidePad, 0, sidePad).Parent = content
 	UI.list("h", math.floor(h * 0.2), { HorizontalAlignment = opts.align == "left" and Enum.HorizontalAlignment.Left or Enum.HorizontalAlignment.Center }).Parent = content
+	-- hazard lead-in on the main call to action: the same forward slant, printed into the paint
+	if v.hatch and slanted and h >= m.btn and not opts.compact then
+		local hatchH = math.floor(h * 0.5)
+		new("ImageLabel", {
+			Name = "Hatch",
+			BackgroundTransparency = 1,
+			Size = UDim2.fromOffset(math.floor(hatchH * 0.66), hatchH),
+			ImageColor3 = v.text,
+			ImageTransparency = 0.72,
+			LayoutOrder = -1,
+			ZIndex = 2,
+			Parent = content,
+		}, nil)
+		Icons.apply(content:FindFirstChild("Hatch"), "hatchSlant")
+	end
 
 	local iconSize = math.floor(h * 0.44)
 	local icon = opts.icon and UI.icon(opts.icon, iconSize, v.text, { LayoutOrder = 1, ZIndex = 2, Parent = content }) or nil
@@ -407,12 +463,20 @@ function UI.button(opts)
 		Visible = st.text ~= "",
 		Parent = content,
 	})
+	if not opts.width then
+		-- auto-width buttons grow with the label, so it never needs (or gets) an ellipsis
+		label.TextTruncate = Enum.TextTruncate.None
+	end
 	if opts.width then
-		label.AutomaticSize = Enum.AutomaticSize.None
-		label.Size = UDim2.new(1, -(icon and iconSize + 8 or 0) - (opts.key and 30 or 0), 1, 0)
+		-- nothing spills past the slant: with a key hint the label fills the gap so the key sits on the edge;
+		-- otherwise icon and label stay together in the centre and the label only shrinks (with "…") if it must
 		label.TextXAlignment = opts.align == "left" and Enum.TextXAlignment.Left or Enum.TextXAlignment.Center
-		if not icon and not opts.key then
-			label.Size = UDim2.fromScale(1, 1)
+		if opts.key or opts.align == "left" then
+			label.AutomaticSize = Enum.AutomaticSize.None
+			label.Size = UDim2.fromScale(0, 1)
+			UI.flex("fill").Parent = label
+		else
+			new("UIFlexItem", { FlexMode = Enum.UIFlexMode.Shrink, Parent = label })
 		end
 	end
 	local key = opts.key and UI.keycap(opts.key, { LayoutOrder = 3, ZIndex = 2, Parent = content }) or nil
@@ -581,9 +645,10 @@ function UI.tag(text: string, color: Color3, opts)
 	local h = opts.height or (m.micro + 10)
 	local solid = opts.solid
 	local tag = new("ImageLabel", { Name = opts.name or "Tag", BackgroundTransparency = 1, ImageColor3 = solid and color or color:Lerp(C.ink900, 0.8), Size = UDim2.fromOffset(0, h), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = opts.order or 0 })
-	Icons.apply(tag, "pill")
+	-- cargo tag: pointed left end with an eyelet, like the tags wired onto crates on the dock
+	Icons.apply(tag, "tagCargo")
 	tag.SliceScale = h / 128
-	UI.pad(0, math.floor(h * 0.55)).Parent = tag
+	UI.pad(0, math.floor(h * 0.5), 0, math.floor(h * 0.92)).Parent = tag
 	local row = tag
 	UI.list("h", 4).Parent = row
 	if opts.icon then
@@ -746,11 +811,21 @@ function UI.segmented(opts)
 			-- equal columns; the label never truncates inside its own column
 			b.AutomaticSize = Enum.AutomaticSize.None
 			b.Size = UDim2.new(1 / #opts.options, -2, 1, 0)
-			inner.AnchorPoint = Vector2.new(0.5, 0)
-			inner.Position = UDim2.fromScale(0.5, 0)
+			-- the label fills its column (centred) and scales down a little if the column is too narrow
+			inner.AutomaticSize = Enum.AutomaticSize.None
+			inner.Size = UDim2.fromScale(1, 1)
+			inner:FindFirstChildOfClass("UIPadding"):Destroy()
+			UI.pad(0, 4).Parent = inner
+			inner:FindFirstChildOfClass("UIListLayout").HorizontalAlignment = Enum.HorizontalAlignment.Center
 			text.TextTruncate = Enum.TextTruncate.None
+			text.AutomaticSize = Enum.AutomaticSize.None
+			text.Size = UDim2.new(1, o.icon and -(math.floor(h * 0.45) + 6) or 0, 1, 0)
+			text.TextXAlignment = o.icon and Enum.TextXAlignment.Left or Enum.TextXAlignment.Center
+			text.TextScaled = true
+			new("UITextSizeConstraint", { MaxTextSize = m.small, MinTextSize = 9, Parent = text })
 		end
 		local ring = UI.shape("roundedStroke", C.paper, { Name = "Focus", SliceScale = 0.25, Visible = false, ZIndex = 3, Parent = b })
+		UI.ownFocus(b)
 		local it = { value = o.value, fill = fill, text = text, bar = bar, disabled = o.disabled }
 		table.insert(items, it)
 		b.MouseEnter:Connect(function()
@@ -798,6 +873,7 @@ function UI.toggle(opts)
 	st.Parent = b
 	local knob = UI.fill(C.steel2, { Name = "Knob", Size = UDim2.fromOffset(h - 8, h - 8), AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 4, 0.5, 0), Parent = b })
 	UI.corner(h).Parent = knob
+	UI.ownFocus(b)
 	local api = { inst = b }
 	local function paint(instant)
 		local t = instant and 0 or Theme.motion.base
@@ -1090,7 +1166,8 @@ function UI.modal(opts)
 				firstAction = btn.inst
 			end
 		end
-		if GuiService.SelectedObject and firstAction then
+		-- only once the dialog is mounted: SelectedObject must live under PlayerGui (the first focus is set below)
+		if GuiService.SelectedObject and firstAction and layer.Parent then
 			GuiService.SelectedObject = firstAction
 		end
 	end
@@ -1124,6 +1201,20 @@ function UI.modal(opts)
 	task.delay(0.05, fit)
 	Util.tween(layer, Theme.motion.base, { BackgroundTransparency = 0.42 })
 	Util.tween(scale, Theme.motion.base, { Scale = 1 })
+	-- text that sized itself while the card was still scaling in was measured short: once the card is at
+	-- full size, every auto-sized label is measured again so nothing ends up clipped or crowding its neighbour
+	task.delay(Util.reducedMotion and 0 or Theme.motion.base + 0.03, function()
+		if not card.Parent then
+			return
+		end
+		for _, d in card:GetDescendants() do
+			if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.AutomaticSize ~= Enum.AutomaticSize.None then
+				local a = d.AutomaticSize
+				d.AutomaticSize = Enum.AutomaticSize.None
+				d.AutomaticSize = a
+			end
+		end
+	end)
 	if GuiService.SelectedObject then
 		previousSelection = GuiService.SelectedObject
 		GuiService.SelectedObject = firstAction or card:FindFirstChildWhichIsA("GuiButton", true)
