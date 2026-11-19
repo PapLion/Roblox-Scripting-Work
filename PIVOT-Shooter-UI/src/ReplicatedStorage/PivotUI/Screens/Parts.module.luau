@@ -38,10 +38,23 @@ function Parts.playerCard(scope, opts)
 	local xp = UI.bar({ height = 3, color = C.signal, order = 3, size = UDim2.new(0.9, 0, 0, 3) })
 	xp.inst.Parent = txt
 	local emblemHolder = UI.box({ Size = UDim2.fromOffset(40, 40), LayoutOrder = 3, Parent = row })
+	-- narrow columns (tablet) keep "Nivel N" and leave the progress to the bar underneath
+	local fullSub, shortSub = "", ""
+	local function fitSub()
+		sub.Text = fullSub
+		task.defer(function()
+			if sub.Parent and sub.AbsoluteSize.X > 0 and not sub.TextFits then
+				sub.Text = shortSub
+			end
+		end)
+	end
+	sub:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitSub)
 	local function refresh()
 		local p = Store.state.profile
 		name.Text = p.name
-		sub.Text = string.format("Nivel %d  ·  %s / %s XP", p.level, Util.num(p.xp), Util.num(Store.xpToNext(p.level)))
+		fullSub = string.format("Nivel %d  ·  %s / %s XP", p.level, Util.num(p.xp), Util.num(Store.xpToNext(p.level)))
+		shortSub = string.format("Nivel %d", p.level)
+		fitSub()
 		xp.set(p.xp, Store.xpToNext(p.level), true)
 		for _, c in emblemHolder:GetChildren() do
 			c:Destroy()
@@ -92,7 +105,19 @@ local function memberRow(info, opts)
 		UI.icon("crown", 14, C.brass, { LayoutOrder = 1, Parent = nameRow })
 	end
 	UI.label("strong", info.name, { Size = UDim2.new(1, info.leader and -20 or 0, 1, 0), TextSize = m.small + 1, LayoutOrder = 2, Parent = nameRow })
-	UI.label("micro", (info.me and "Tú" or "Amigo") .. "  ·  Nivel " .. tostring(info.level), { LayoutOrder = 2, Parent = txt })
+	local fullSub = (info.me and "Tú" or "Amigo") .. "  ·  Nivel " .. tostring(info.level)
+	local sub = UI.label("micro", fullSub, { LayoutOrder = 2, Parent = txt })
+	-- narrow columns keep the level rather than cut it: the relation is dropped when it doesn't fit
+	local function fitSub()
+		sub.Text = fullSub
+		task.defer(function()
+			if sub.Parent and sub.AbsoluteSize.X > 0 and not sub.TextFits then
+				sub.Text = "Nivel " .. tostring(info.level)
+			end
+		end)
+	end
+	sub:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitSub)
+	fitSub()
 	local pillColor = info.ready and C.ok or C.steel
 	if phone then
 		UI.icon(info.ready and "ready" or "notReady", 16, pillColor, { LayoutOrder = 3, Parent = row })
@@ -373,6 +398,16 @@ function Parts.loadoutStrip(scope, opts)
 		UI.label("eyebrow", Catalog.slotName[slot], { LayoutOrder = 1, TextSize = m.micro, Parent = txt })
 		local name = UI.label("title", "", { LayoutOrder = 2, TextSize = phone and m.small or m.body, TextWrapped = true, TextTruncate = Enum.TextTruncate.None, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1, 0, 0, 0), LineHeight = 0.95, Parent = txt })
 		local sub = UI.label("micro", "", { LayoutOrder = 3, Visible = not phone, Parent = txt })
+		-- narrow slots (tablet centre column) drop the thumbnail and give the text the whole width,
+		-- so names wrap between words instead of being split mid-word
+		local function arrange()
+			local wide = b.AbsoluteSize.X >= 150
+			card.inst.Visible = wide
+			txt.Size = wide and UDim2.new(0.58, -12, 1, 0) or UDim2.new(1, -20, 1, 0)
+			txt.Position = wide and UDim2.new(0.42, 6, 0, 0) or UDim2.fromOffset(12, 0)
+		end
+		b:GetPropertyChangedSignal("AbsoluteSize"):Connect(arrange)
+		arrange()
 		local ring = UI.shape("panelCutStroke", C.signal, { Name = "Hover", SliceScale = 0.35, Visible = false, ZIndex = 3, Parent = b })
 		b.MouseEnter:Connect(function()
 			ring.Visible = true
@@ -423,7 +458,7 @@ function Parts.loadoutStrip(scope, opts)
 				cell.short = item.stats.mag .. " balas"
 				cell.fit()
 			else
-				cell.full, cell.short = "Un uso por vida", "Un uso por vida"
+				cell.full, cell.short = "Un uso por vida", "Un uso"
 				cell.fit()
 			end
 		end

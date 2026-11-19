@@ -13,7 +13,7 @@ en el cliente, sin servidores, sin DataStore y sin compras reales (no usa Market
 | `src/` | Todos los scripts, con la misma jerarquía que en Studio (`*.module.luau`, `*.client.luau`) |
 | `art/` | Atlas de UI propio (76 iconos, emblemas, piezas 9-slice y efectos de HUD), su generador y su mapa |
 | `tools/` | Extractor y parcheador de `.rbxl`, y el script de recuperación de la sesión del 13/11 |
-| `captures/` | 12 capturas a 1920×1080 reales del recorrido completo |
+| `captures/` | 12 capturas a 1920×1080 reales del recorrido completo, más `components/` (láminas de componentes renderizadas en Studio con el módulo `UI`) y `responsive/` (tablet y móvil en modo táctil) |
 
 ## Abrir y probar
 
@@ -56,11 +56,11 @@ En la prueba, 21 cambios de pestaña dejaron las mismas 11 escuchas y 459 instan
 - **C**: misión «Consigue 10 eliminaciones» → reclamar (+250 XP y +200 créditos) → un segundo intento se rechaza.
 - **D**: ajustes → cambiar la mira → salir avisa de cambios sin aplicar → aplicar → reabrir conserva el valor.
 - **E**: caducidad al aceptar, cancelación de búsqueda, desconexión simulada y repetición del ciclo sin pantallas ni recompensas duplicadas.
-- Formatos: escritorio (1920×1080), tablet (1400×580 dentro de Studio) y móvil horizontal (844×390). Escritorio y móvil se repasaron de nuevo tras el último pase de diseño.
+- Formatos: escritorio (1920×1080), tablet (999×626 y 1400×580 dentro de Studio) y móvil horizontal (844×390). En tablet la barra superior muestra solo iconos salvo la sección actual, los huecos de equipamiento estrechos quitan la miniatura y los textos secundarios se acortan en vez de cortarse; un escaneo de `TextFits` en todas las pestañas deja solo los recortes previstos (nombres muy largos y descripciones limitadas a dos líneas).
 
 ## Estado y pendiente (real)
 
 - **Modelos.** Tern P9, Kite C7, Anvil 12 y la caja de munición son los FBX propios importados y normalizados (boca hacia +X, pivote centrado, `Paint` solo en las piezas pintadas): ids 88606029231934, 105588646967922, 128212766672588 y 98721329556482. Wasp SMG, Lance DMR y el botiquín están hechos en Studio con Parts; su longitud está medida del modelo.
-- **Capturas.** Hechas, en `captures/` (01–11 más la confirmación de compra). La barra superior de Roblox (logo, menú y micrófono) aparece arriba a la izquierda: Studio no permite ocultarla.
+- **Capturas.** Hechas, en `captures/` (01–11 más la confirmación de compra, las dos láminas de componentes y tres vistas responsive). La barra superior de Roblox (logo, menú y micrófono) aparece arriba a la izquierda: Studio no permite ocultarla.
 - **Copia local del place.** El trabajo se guardó en la experiencia privada «UI» (place 138260939884345). Los `.rbxl` de `place/` son anteriores: para actualizarlos, en Studio *File > Save to File As* sobre `place/PIVOT_ShooterUI_laptop.rbxl`.
 - Textos solo en español. No hay soporte de mando (no se anuncia).

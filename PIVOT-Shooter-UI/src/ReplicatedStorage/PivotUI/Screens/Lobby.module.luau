@@ -74,7 +74,8 @@ function Lobby.build(ctx)
 	UI.list("h", phone and 10 or 16, { HorizontalAlignment = Enum.HorizontalAlignment.Right }).Parent = right
 
 	-- party / player state pill
-	local statusPill = UI.surface({ Name = "Status", Size = UDim2.fromOffset(0, m.btnSm), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 1, Visible = not phone }, { edge = C.ink600, pad = 10, cut = 0.25 })
+	-- tablet widths start at 820 px: the party state already shows in the Group panel, so the pill goes
+	local statusPill = UI.surface({ Name = "Status", Size = UDim2.fromOffset(0, m.btnSm), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 1, Visible = not phone and not tablet }, { edge = C.ink600, pad = 10, cut = 0.25 })
 	UI.pad(0, 12).Parent = statusPill
 	UI.list("h", 8).Parent = statusPill
 	local statusDot = UI.icon("dot", 10, C.ok, { LayoutOrder = 1, Parent = statusPill })
@@ -86,11 +87,12 @@ function Lobby.build(ctx)
 	credits.inst.Parent = right
 
 	-- level + xp
-	local lvl = UI.box({ Name = "Level", Size = UDim2.fromOffset(phone and 86 or 196, m.topbar - 16), LayoutOrder = 3 })
+	local compactTop = phone or tablet
+	local lvl = UI.box({ Name = "Level", Size = UDim2.fromOffset(phone and 86 or (tablet and 112 or 196), m.topbar - 16), LayoutOrder = 3 })
 	UI.list("v", 4, { VerticalAlignment = Enum.VerticalAlignment.Center }).Parent = lvl
 	local lvlRow = UI.box({ Size = UDim2.new(1, 0, 0, m.small + 4), LayoutOrder = 1, Parent = lvl })
-	local lvlText = UI.label("eyebrow", "", { TextColor3 = C.paper, TextSize = m.small, Size = UDim2.fromScale(phone and 1 or 0.38, 1), Parent = lvlRow })
-	local xpText = UI.label("mono", "", { TextSize = m.micro, TextXAlignment = Enum.TextXAlignment.Right, Size = UDim2.fromScale(0.62, 1), Position = UDim2.fromScale(0.38, 0), Visible = not phone, Parent = lvlRow })
+	local lvlText = UI.label("eyebrow", "", { TextColor3 = C.paper, TextSize = m.small, Size = UDim2.fromScale(compactTop and 1 or 0.38, 1), Parent = lvlRow })
+	local xpText = UI.label("mono", "", { TextSize = m.micro, TextXAlignment = Enum.TextXAlignment.Right, Size = UDim2.fromScale(0.62, 1), Position = UDim2.fromScale(0.38, 0), Visible = not compactTop, Parent = lvlRow })
 	local xpBar = UI.bar({ height = 4, color = C.signal, order = 2 })
 	xpBar.inst.Parent = lvl
 	lvl.Parent = right
@@ -165,7 +167,6 @@ function Lobby.build(ctx)
 				FontFace = phone and F.bodySemi or F.displayMedium,
 				TextColor3 = C.steel,
 				LayoutOrder = 2,
-				Visible = not (tablet and false),
 				Parent = inner,
 			})
 			local bar = UI.fill(C.signal, phone and { Name = "On", Size = UDim2.new(0, 3, 0.6, 0), AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, -4, 0.5, 0), Visible = false, Parent = b }
@@ -211,6 +212,10 @@ function Lobby.build(ctx)
 			it.label.TextColor3 = on and C.paper or C.steel
 			it.icon.ImageColor3 = on and C.signal or C.steel
 			it.bar.Visible = on
+			-- tablet: icons only, with the label on the current section, so the bar fits from 820 px
+			if tablet then
+				it.label.Visible = on
+			end
 			it.button.ImageTransparency = (on and phone) and 0 or 1
 		end
 		local claim = Store.claimableCount()

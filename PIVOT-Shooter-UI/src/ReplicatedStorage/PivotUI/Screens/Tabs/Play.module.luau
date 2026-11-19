@@ -158,7 +158,11 @@ function Play.build(ctx)
 			Parts.mapPreview(map.id, { Size = UDim2.new(1, 0, 1, phone and -40 or -(m.h3 * 1.35 + m.micro * 3.6 + 16)), ZIndex = 2, Parent = inner })
 			local txt = UI.box({ Size = UDim2.new(1, 0, 0, phone and 34 or (m.h3 * 1.35 + m.micro * 3.6 + 8)), AnchorPoint = Vector2.new(0, 1), Position = UDim2.fromScale(0, 1), Parent = inner })
 			UI.list("v", 2).Parent = txt
-			UI.label("h3", map.name, { LayoutOrder = 1, TextSize = phone and m.small + 1 or m.h3, Parent = txt })
+			local title = UI.label("h3", map.name, { LayoutOrder = 1, TextSize = phone and m.small + 1 or m.h3, Parent = txt })
+			-- narrow tablet cards: the map name shrinks a little instead of ending in "…"
+			title.TextScaled = true
+			title.TextTruncate = Enum.TextTruncate.None
+			UI.new("UITextSizeConstraint", { MaxTextSize = phone and m.small + 1 or m.h3, MinTextSize = 11, Parent = title })
 			local d = UI.para(map.desc, { TextSize = m.micro, LayoutOrder = 2, Visible = not phone, Parent = txt })
 			d.AutomaticSize = Enum.AutomaticSize.None
 			-- room for three lines: on tablet the cards are narrow and the copy wraps once more

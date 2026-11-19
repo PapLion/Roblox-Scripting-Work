@@ -160,7 +160,8 @@ local function newsPanel(ctx, order, featuredOnly)
 	UI.list("h", 6).Parent = tagRow
 	UI.tag("Evento", C.signal, { solid = true, icon = "sparkle", order = 1 }).Parent = tagRow
 	UI.label("micro", f.date, { Size = UDim2.fromScale(0, 1), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 2, Parent = tagRow })
-	UI.label("title", f.title, { LayoutOrder = 2, Parent = txt })
+	-- the title wraps (narrow tablet column) instead of ending in "…"
+	UI.label("title", f.title, { LayoutOrder = 2, TextWrapped = true, TextTruncate = Enum.TextTruncate.None, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1, 0, 0, 0), Parent = txt })
 	UI.para(f.body, { TextSize = m.micro + 1, LayoutOrder = 3, Parent = txt })
 	feat.Activated:Connect(function()
 		Store.dispatch({ type = "SET_MODE", mode = "teams" })
