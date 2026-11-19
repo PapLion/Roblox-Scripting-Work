@@ -1,0 +1,3048 @@
+{
+ "assets": {
+  "Axe": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Axe/Axe.fbx",
+   "tris": 2474,
+   "size_m": [
+    0.2466,
+    0.0549,
+    0.8419
+   ],
+   "bbox_min": [
+    -0.0592,
+    -0.0274,
+    -0.1459
+   ],
+   "bbox_max": [
+    0.1874,
+    0.0274,
+    0.696
+   ],
+   "parts": [
+    "Axe_Handle",
+    "Axe_HandleEnd",
+    "Axe_Head",
+    "Axe_Wedge",
+    "Axe_Wrap"
+   ],
+   "materials": [
+    "M_Leather",
+    "M_Paint_Red",
+    "M_Steel",
+    "M_SteelDark",
+    "M_Wood"
+   ],
+   "pivots": {
+    "Axe_HandleEnd": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Axe_Handle": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Axe_Wrap": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Axe_Head": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Axe_Wedge": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Sword": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Sword/Sword.fbx",
+   "tris": 3018,
+   "size_m": [
+    0.2256,
+    0.038,
+    0.9757
+   ],
+   "bbox_min": [
+    -0.1128,
+    -0.019,
+    -0.1357
+   ],
+   "bbox_max": [
+    0.1128,
+    0.019,
+    0.84
+   ],
+   "parts": [
+    "Sword_Blade",
+    "Sword_Ferrules",
+    "Sword_Gems",
+    "Sword_Grip",
+    "Sword_Guard",
+    "Sword_Pommel"
+   ],
+   "materials": [
+    "M_Gem_Blue",
+    "M_Leather",
+    "M_Steel"
+   ],
+   "pivots": {
+    "Sword_Grip": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Sword_Ferrules": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Sword_Guard": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Sword_Blade": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Sword_Pommel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Sword_Gems": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Hammer": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Hammer/Hammer.fbx",
+   "tris": 1378,
+   "size_m": [
+    0.1953,
+    0.0618,
+    0.4138
+   ],
+   "bbox_min": [
+    -0.0968,
+    -0.0309,
+    -0.1056
+   ],
+   "bbox_max": [
+    0.0985,
+    0.0309,
+    0.3082
+   ],
+   "parts": [
+    "Hammer_Collar",
+    "Hammer_Face",
+    "Hammer_Handle",
+    "Hammer_Head",
+    "Hammer_Langets",
+    "Hammer_Wedge"
+   ],
+   "materials": [
+    "M_Copper",
+    "M_Steel",
+    "M_SteelDark",
+    "M_Wood"
+   ],
+   "pivots": {
+    "Hammer_Handle": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Hammer_Head": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Hammer_Face": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Hammer_Langets": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Hammer_Collar": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Hammer_Wedge": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Pickaxe": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Pickaxe/Pickaxe.fbx",
+   "tris": 2232,
+   "size_m": [
+    0.4953,
+    0.0624,
+    0.815
+   ],
+   "bbox_min": [
+    -0.2463,
+    -0.0312,
+    -0.1406
+   ],
+   "bbox_max": [
+    0.249,
+    0.0312,
+    0.6744
+   ],
+   "parts": [
+    "Pickaxe_Handle",
+    "Pickaxe_HandleEnd",
+    "Pickaxe_Head",
+    "Pickaxe_Rivets",
+    "Pickaxe_Socket",
+    "Pickaxe_Wrap"
+   ],
+   "materials": [
+    "M_Leather",
+    "M_Paint_Amber",
+    "M_Steel",
+    "M_SteelDark",
+    "M_Wood"
+   ],
+   "pivots": {
+    "Pickaxe_HandleEnd": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Pickaxe_Handle": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Pickaxe_Wrap": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Pickaxe_Head": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Pickaxe_Socket": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Pickaxe_Rivets": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Shield": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Shield/Shield.fbx",
+   "tris": 3340,
+   "size_m": [
+    0.612,
+    0.0962,
+    0.612
+   ],
+   "bbox_min": [
+    -0.306,
+    -0.0834,
+    -0.306
+   ],
+   "bbox_max": [
+    0.306,
+    0.0128,
+    0.306
+   ],
+   "parts": [
+    "Shield_Boss",
+    "Shield_Brackets",
+    "Shield_Emblem",
+    "Shield_Leather",
+    "Shield_Rim",
+    "Shield_Wood"
+   ],
+   "materials": [
+    "M_Brass",
+    "M_Leather",
+    "M_Paint_Teal",
+    "M_Steel",
+    "M_SteelDark",
+    "M_Wood"
+   ],
+   "pivots": {
+    "Shield_Wood": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shield_Rim": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shield_Emblem": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shield_Boss": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shield_Leather": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shield_Brackets": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Dagger": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Dagger/Dagger.fbx",
+   "tris": 2112,
+   "size_m": [
+    0.097,
+    0.0307,
+    0.3455
+   ],
+   "bbox_min": [
+    -0.0485,
+    -0.0153,
+    -0.0835
+   ],
+   "bbox_max": [
+    0.0485,
+    0.0153,
+    0.262
+   ],
+   "parts": [
+    "Dagger_Blade",
+    "Dagger_Gem",
+    "Dagger_Grip",
+    "Dagger_Guard",
+    "Dagger_Pommel",
+    "Dagger_Rings"
+   ],
+   "materials": [
+    "M_Brass",
+    "M_Gem_Green",
+    "M_Leather",
+    "M_Steel"
+   ],
+   "pivots": {
+    "Dagger_Grip": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Dagger_Rings": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Dagger_Guard": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Dagger_Blade": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Dagger_Pommel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Dagger_Gem": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Dagger_Sheath": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Dagger_Sheath/Dagger_Sheath.fbx",
+   "tris": 570,
+   "size_m": [
+    0.0524,
+    0.019,
+    0.2137
+   ],
+   "bbox_min": [
+    -0.0262,
+    -0.0095,
+    0.0665
+   ],
+   "bbox_max": [
+    0.0262,
+    0.0095,
+    0.2802
+   ],
+   "parts": [
+    "Dagger_Sheath_Leather",
+    "Dagger_Sheath_Metal"
+   ],
+   "materials": [
+    "M_Leather",
+    "M_Steel"
+   ],
+   "pivots": {
+    "Dagger_Sheath_Leather": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Dagger_Sheath_Metal": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Pistol": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Pistol/Pistol.fbx",
+   "tris": 3654,
+   "size_m": [
+    0.2196,
+    0.0328,
+    0.15
+   ],
+   "bbox_min": [
+    -0.0408,
+    -0.0164,
+    -0.0545
+   ],
+   "bbox_max": [
+    0.1788,
+    0.0164,
+    0.0955
+   ],
+   "parts": [
+    "Pistol_Barrel",
+    "Pistol_Frame",
+    "Pistol_GripTexture",
+    "Pistol_Magazine",
+    "Pistol_SightDot",
+    "Pistol_Slide",
+    "Pistol_Trigger"
+   ],
+   "materials": [
+    "M_Gunmetal",
+    "M_Paint_Orange",
+    "M_Polymer",
+    "M_Steel"
+   ],
+   "pivots": {
+    "Pistol_Slide": [
+     0.072,
+     0.0,
+     0.07
+    ],
+    "Pistol_SightDot": [
+     0.1578,
+     0.0,
+     0.0914
+    ],
+    "Pistol_Barrel": [
+     0.112,
+     0.0,
+     0.07
+    ],
+    "Pistol_Frame": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Pistol_GripTexture": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Pistol_Trigger": [
+     0.079,
+     0.0,
+     0.039
+    ],
+    "Pistol_Magazine": [
+     0.009,
+     0.0,
+     0.04
+    ]
+   },
+   "bones": 0
+  },
+  "Rifle": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Rifle/Rifle.fbx",
+   "tris": 5186,
+   "size_m": [
+    0.749,
+    0.0592,
+    0.2566
+   ],
+   "bbox_min": [
+    -0.27,
+    -0.0357,
+    -0.1331
+   ],
+   "bbox_max": [
+    0.479,
+    0.0235,
+    0.1235
+   ],
+   "parts": [
+    "Rifle_Barrel",
+    "Rifle_Bolt",
+    "Rifle_BoltKnob",
+    "Rifle_ButtPad",
+    "Rifle_Furniture",
+    "Rifle_Hardware",
+    "Rifle_Lower",
+    "Rifle_Magazine",
+    "Rifle_Selector",
+    "Rifle_SightDot",
+    "Rifle_Trigger",
+    "Rifle_Upper"
+   ],
+   "materials": [
+    "M_Gunmetal",
+    "M_Paint_Orange",
+    "M_Polymer",
+    "M_Polymer_Tan",
+    "M_Rubber",
+    "M_Steel"
+   ],
+   "pivots": {
+    "Rifle_Upper": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Rifle_Bolt": [
+     0.073,
+     -0.0135,
+     0.085
+    ],
+    "Rifle_BoltKnob": [
+     0.087,
+     -0.0325,
+     0.085
+    ],
+    "Rifle_Lower": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Rifle_Furniture": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Rifle_ButtPad": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Rifle_Barrel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Rifle_SightDot": [
+     0.3622,
+     0.0,
+     0.119
+    ],
+    "Rifle_Trigger": [
+     0.0465,
+     0.0,
+     0.043
+    ],
+    "Rifle_Selector": [
+     0.022,
+     0.0157,
+     0.0538
+    ],
+    "Rifle_Magazine": [
+     0.0935,
+     0.0,
+     0.046
+    ],
+    "Rifle_Hardware": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Shotgun": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Shotgun/Shotgun.fbx",
+   "tris": 6344,
+   "size_m": [
+    0.998,
+    0.0664,
+    0.1485
+   ],
+   "bbox_min": [
+    -0.325,
+    -0.0245,
+    -0.0731
+   ],
+   "bbox_max": [
+    0.673,
+    0.0419,
+    0.0754
+   ],
+   "parts": [
+    "Shotgun_Barrel",
+    "Shotgun_Bead",
+    "Shotgun_Bolt",
+    "Shotgun_ButtPad",
+    "Shotgun_Checkering",
+    "Shotgun_Pump",
+    "Shotgun_Receiver",
+    "Shotgun_ShellBrass",
+    "Shotgun_Shells",
+    "Shotgun_Stock",
+    "Shotgun_Trigger",
+    "Shotgun_TriggerGroup"
+   ],
+   "materials": [
+    "M_Brass",
+    "M_Gunmetal",
+    "M_Paint_Orange",
+    "M_Polymer",
+    "M_Rubber",
+    "M_Shell_Red",
+    "M_Steel"
+   ],
+   "pivots": {
+    "Shotgun_Receiver": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shotgun_Bolt": [
+     0.153,
+     -0.015,
+     0.042
+    ],
+    "Shotgun_Barrel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shotgun_Bead": [
+     0.665,
+     0.0,
+     0.071
+    ],
+    "Shotgun_Pump": [
+     0.4125,
+     0.0,
+     0.021
+    ],
+    "Shotgun_Stock": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shotgun_Checkering": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shotgun_ButtPad": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shotgun_TriggerGroup": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shotgun_Trigger": [
+     0.1285,
+     0.0,
+     0.005
+    ],
+    "Shotgun_Shells": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shotgun_ShellBrass": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "AmmoBox": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/AmmoBox/AmmoBox.fbx",
+   "tris": 1768,
+   "size_m": [
+    0.307,
+    0.1437,
+    0.1903
+   ],
+   "bbox_min": [
+    -0.1535,
+    -0.072,
+    0.0
+   ],
+   "bbox_max": [
+    0.1535,
+    0.0717,
+    0.1903
+   ],
+   "parts": [
+    "AmmoBox_Body",
+    "AmmoBox_Handle",
+    "AmmoBox_HandleBrackets",
+    "AmmoBox_Hinge",
+    "AmmoBox_Label",
+    "AmmoBox_Latch",
+    "AmmoBox_Lid",
+    "AmmoBox_Stripe"
+   ],
+   "materials": [
+    "M_Paint_OD",
+    "M_Paint_Orange",
+    "M_Polymer_Tan",
+    "M_Steel",
+    "M_SteelDark"
+   ],
+   "pivots": {
+    "AmmoBox_Body": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "AmmoBox_Stripe": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "AmmoBox_Label": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "AmmoBox_Lid": [
+     0.0,
+     -0.0665,
+     0.152
+    ],
+    "AmmoBox_Hinge": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "AmmoBox_Latch": [
+     0.0,
+     0.0677,
+     0.112
+    ],
+    "AmmoBox_HandleBrackets": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "AmmoBox_Handle": [
+     0.0,
+     -0.0005,
+     0.1846
+    ]
+   },
+   "bones": 0
+  },
+  "Guard": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Guard/Guard.fbx",
+   "tris": 12854,
+   "size_m": [
+    1.1698,
+    0.5427,
+    1.6839
+   ],
+   "bbox_min": [
+    -0.5849,
+    -0.2717,
+    -0.0
+   ],
+   "bbox_max": [
+    0.5849,
+    0.271,
+    1.6839
+   ],
+   "parts": [
+    "Guard_Belt",
+    "Guard_Breastplate",
+    "Guard_Brows",
+    "Guard_Buckle",
+    "Guard_Cape",
+    "Guard_Emblem",
+    "Guard_EyeShine",
+    "Guard_FaceFeatures",
+    "Guard_Head",
+    "Guard_Helmet",
+    "Guard_LeftBootCuff",
+    "Guard_LeftBracer",
+    "Guard_LeftFoot",
+    "Guard_LeftHand",
+    "Guard_LeftLowerArm",
+    "Guard_LeftLowerLeg",
+    "Guard_LeftPauldron",
+    "Guard_LeftPauldronRivets",
+    "Guard_LeftUpperArm",
+    "Guard_LeftUpperLeg",
+    "Guard_LowerTorso",
+    "Guard_Plume",
+    "Guard_RightBootCuff",
+    "Guard_RightBracer",
+    "Guard_RightFoot",
+    "Guard_RightHand",
+    "Guard_RightLowerArm",
+    "Guard_RightLowerLeg",
+    "Guard_RightPauldron",
+    "Guard_RightPauldronRivets",
+    "Guard_RightUpperArm",
+    "Guard_RightUpperLeg",
+    "Guard_Scarf",
+    "Guard_Trim",
+    "Guard_UpperTorso"
+   ],
+   "materials": [
+    "M_Brass",
+    "M_Cloth_Blue",
+    "M_Cloth_Gray",
+    "M_Eye_White",
+    "M_Face",
+    "M_Leather",
+    "M_Paint_Red",
+    "M_Paint_Teal",
+    "M_Skin",
+    "M_Steel"
+   ],
+   "pivots": {
+    "Guard_LeftHand": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_LeftLowerArm": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_Head": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_LowerTorso": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_RightFoot": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_RightLowerArm": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_UpperTorso": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_LeftFoot": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_LeftLowerLeg": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_LeftUpperArm": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_LeftUpperLeg": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_RightHand": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_RightLowerLeg": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_RightUpperArm": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_RightUpperLeg": [
+     0.0,
+     0.0,
+     0.561
+    ],
+    "Guard_Breastplate": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_Emblem": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_Trim": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_Scarf": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_Cape": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_Belt": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_Buckle": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_LeftPauldron": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_LeftPauldronRivets": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_LeftBracer": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_LeftBootCuff": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_RightPauldron": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_RightPauldronRivets": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_RightBracer": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_RightBootCuff": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_Helmet": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_Plume": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_FaceFeatures": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_EyeShine": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Guard_Brows": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 51
+  },
+  "SlimeBoss": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/SlimeBoss/SlimeBoss.fbx",
+   "tris": 7402,
+   "size_m": [
+    1.72,
+    1.3506,
+    1.2812
+   ],
+   "bbox_min": [
+    -0.79,
+    -0.6642,
+    0.0
+   ],
+   "bbox_max": [
+    0.93,
+    0.6864,
+    1.2812
+   ],
+   "parts": [
+    "SlimeBoss_Body",
+    "SlimeBoss_Crown",
+    "SlimeBoss_CrownGems",
+    "SlimeBoss_EyeShine",
+    "SlimeBoss_Eyes",
+    "SlimeBoss_Mouth"
+   ],
+   "materials": [
+    "M_Eye_White",
+    "M_Face",
+    "M_Gem_Red",
+    "M_Gold",
+    "M_SlimeBlue",
+    "M_SlimeMouth"
+   ],
+   "pivots": {
+    "SlimeBoss_Body": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "SlimeBoss_Eyes": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "SlimeBoss_EyeShine": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "SlimeBoss_Mouth": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "SlimeBoss_Crown": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "SlimeBoss_CrownGems": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Skeleton": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Skeleton/Skeleton.fbx",
+   "tris": 18390,
+   "size_m": [
+    0.6117,
+    0.3128,
+    1.4124
+   ],
+   "bbox_min": [
+    -0.2744,
+    -0.158,
+    0.0096
+   ],
+   "bbox_max": [
+    0.3373,
+    0.1548,
+    1.422
+   ],
+   "parts": [
+    "Skeleton_Head",
+    "Skeleton_Head_Crack",
+    "Skeleton_Head_Eyes",
+    "Skeleton_Head_Jaw",
+    "Skeleton_Head_Sockets",
+    "Skeleton_LeftFoot",
+    "Skeleton_LeftHand",
+    "Skeleton_LeftLowerArm",
+    "Skeleton_LeftLowerLeg",
+    "Skeleton_LeftUpperArm",
+    "Skeleton_LeftUpperArm_Pauldron",
+    "Skeleton_LeftUpperLeg",
+    "Skeleton_LowerTorso",
+    "Skeleton_LowerTorso_Belt",
+    "Skeleton_LowerTorso_Cloth",
+    "Skeleton_RightFoot",
+    "Skeleton_RightHand",
+    "Skeleton_RightLowerArm",
+    "Skeleton_RightLowerLeg",
+    "Skeleton_RightUpperArm",
+    "Skeleton_RightUpperLeg",
+    "Skeleton_UpperTorso",
+    "Skeleton_UpperTorso_Core"
+   ],
+   "materials": [
+    "M_Bone",
+    "M_Bone_Dark",
+    "M_Cloth_Gray",
+    "M_Glow",
+    "M_Leather",
+    "M_Rust"
+   ],
+   "pivots": {
+    "Skeleton_LeftUpperArm": [
+     0.226,
+     0.0,
+     1.03
+    ],
+    "Skeleton_LeftLowerArm": [
+     0.226,
+     0.0,
+     0.815
+    ],
+    "Skeleton_LeftHand": [
+     0.226,
+     0.0,
+     0.615
+    ],
+    "Skeleton_LeftUpperLeg": [
+     0.076,
+     0.0,
+     0.57
+    ],
+    "Skeleton_LeftLowerLeg": [
+     0.076,
+     0.0,
+     0.315
+    ],
+    "Skeleton_LeftFoot": [
+     0.076,
+     0.0,
+     0.075
+    ],
+    "Skeleton_RightUpperArm": [
+     -0.226,
+     0.0,
+     1.03
+    ],
+    "Skeleton_RightLowerArm": [
+     -0.226,
+     0.0,
+     0.815
+    ],
+    "Skeleton_RightHand": [
+     -0.226,
+     0.0,
+     0.615
+    ],
+    "Skeleton_RightUpperLeg": [
+     -0.076,
+     0.0,
+     0.57
+    ],
+    "Skeleton_RightLowerLeg": [
+     -0.076,
+     0.0,
+     0.315
+    ],
+    "Skeleton_RightFoot": [
+     -0.076,
+     0.0,
+     0.075
+    ],
+    "Skeleton_LowerTorso": [
+     0.0,
+     0.0,
+     0.57
+    ],
+    "Skeleton_UpperTorso": [
+     0.0,
+     0.0,
+     0.68
+    ],
+    "Skeleton_UpperTorso_Core": [
+     0.0,
+     0.0,
+     0.68
+    ],
+    "Skeleton_Head": [
+     0.0,
+     0.0,
+     1.1
+    ],
+    "Skeleton_Head_Sockets": [
+     0.0,
+     0.0,
+     1.1
+    ],
+    "Skeleton_Head_Crack": [
+     0.0,
+     0.0,
+     1.1
+    ],
+    "Skeleton_Head_Eyes": [
+     0.0,
+     0.0,
+     1.1
+    ],
+    "Skeleton_Head_Jaw": [
+     0.0,
+     0.05,
+     1.11
+    ],
+    "Skeleton_LowerTorso_Belt": [
+     0.0,
+     0.0,
+     0.57
+    ],
+    "Skeleton_LowerTorso_Cloth": [
+     0.0,
+     0.0,
+     0.57
+    ],
+    "Skeleton_LeftUpperArm_Pauldron": [
+     0.226,
+     0.0,
+     1.03
+    ]
+   },
+   "bones": 0
+  },
+  "Skeleton_Sword": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Skeleton_Sword/Skeleton_Sword.fbx",
+   "tris": 364,
+   "size_m": [
+    0.1456,
+    0.0418,
+    0.629
+   ],
+   "bbox_min": [
+    -0.0712,
+    -0.0209,
+    -0.094
+   ],
+   "bbox_max": [
+    0.0743,
+    0.0209,
+    0.535
+   ],
+   "parts": [
+    "Skeleton_Sword_Blade",
+    "Skeleton_Sword_Grip"
+   ],
+   "materials": [
+    "M_Leather",
+    "M_Rust"
+   ],
+   "pivots": {
+    "Skeleton_Sword_Blade": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Skeleton_Sword_Grip": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Skeleton_Buckler": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Skeleton_Buckler/Skeleton_Buckler.fbx",
+   "tris": 1682,
+   "size_m": [
+    0.3499,
+    0.072,
+    0.3498
+   ],
+   "bbox_min": [
+    -0.1749,
+    -0.071,
+    -0.175
+   ],
+   "bbox_max": [
+    0.175,
+    0.001,
+    0.1748
+   ],
+   "parts": [
+    "Skeleton_Buckler_Metal",
+    "Skeleton_Buckler_Seams",
+    "Skeleton_Buckler_Wood"
+   ],
+   "materials": [
+    "M_Leather",
+    "M_Rust",
+    "M_Wood"
+   ],
+   "pivots": {
+    "Skeleton_Buckler_Wood": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Skeleton_Buckler_Metal": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Skeleton_Buckler_Seams": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Car": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Car/Car.fbx",
+   "tris": 25156,
+   "size_m": [
+    1.82,
+    3.756,
+    1.4842
+   ],
+   "bbox_min": [
+    -0.91,
+    -1.902,
+    -0.001
+   ],
+   "bbox_max": [
+    0.91,
+    1.854,
+    1.4832
+   ],
+   "parts": [
+    "Car_Body",
+    "Car_Chrome",
+    "Car_Glass",
+    "Car_HeadLights",
+    "Car_Interior",
+    "Car_LightBezels",
+    "Car_MirrorCaps",
+    "Car_Plates",
+    "Car_Roof",
+    "Car_Seats",
+    "Car_SteeringWheel",
+    "Car_TailBezels",
+    "Car_TailLights",
+    "Car_Trim",
+    "Car_Wheel_FL",
+    "Car_Wheel_FL_Hub",
+    "Car_Wheel_FL_Rim",
+    "Car_Wheel_FR",
+    "Car_Wheel_FR_Hub",
+    "Car_Wheel_FR_Rim",
+    "Car_Wheel_RL",
+    "Car_Wheel_RL_Hub",
+    "Car_Wheel_RL_Rim",
+    "Car_Wheel_RR",
+    "Car_Wheel_RR_Hub",
+    "Car_Wheel_RR_Rim"
+   ],
+   "materials": [
+    "M_CarPaint",
+    "M_CarWhite",
+    "M_Chrome",
+    "M_Glass",
+    "M_HeadLight",
+    "M_Interior",
+    "M_Polymer",
+    "M_Rubber",
+    "M_Seat",
+    "M_TailLight"
+   ],
+   "pivots": {
+    "Car_Body": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Car_Roof": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Car_Glass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Car_Trim": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Car_Chrome": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Car_MirrorCaps": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Car_HeadLights": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Car_LightBezels": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Car_TailLights": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Car_TailBezels": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Car_Plates": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Car_Interior": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Car_Seats": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Car_SteeringWheel": [
+     0.36,
+     -0.465,
+     0.955
+    ],
+    "Car_Wheel_FL": [
+     0.69,
+     -1.2,
+     0.29
+    ],
+    "Car_Wheel_FL_Rim": [
+     0.69,
+     -1.2,
+     0.29
+    ],
+    "Car_Wheel_FL_Hub": [
+     0.69,
+     -1.2,
+     0.29
+    ],
+    "Car_Wheel_FR": [
+     -0.69,
+     -1.2,
+     0.29
+    ],
+    "Car_Wheel_FR_Rim": [
+     -0.69,
+     -1.2,
+     0.29
+    ],
+    "Car_Wheel_FR_Hub": [
+     -0.69,
+     -1.2,
+     0.29
+    ],
+    "Car_Wheel_RL": [
+     0.69,
+     1.2,
+     0.29
+    ],
+    "Car_Wheel_RL_Rim": [
+     0.69,
+     1.2,
+     0.29
+    ],
+    "Car_Wheel_RL_Hub": [
+     0.69,
+     1.2,
+     0.29
+    ],
+    "Car_Wheel_RR": [
+     -0.69,
+     1.2,
+     0.29
+    ],
+    "Car_Wheel_RR_Rim": [
+     -0.69,
+     1.2,
+     0.29
+    ],
+    "Car_Wheel_RR_Hub": [
+     -0.69,
+     1.2,
+     0.29
+    ]
+   },
+   "bones": 0
+  },
+  "BoarMount": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/BoarMount/BoarMount.fbx",
+   "tris": 26334,
+   "size_m": [
+    0.992,
+    2.0169,
+    1.1795
+   ],
+   "bbox_min": [
+    -0.496,
+    -1.1215,
+    0.0
+   ],
+   "bbox_max": [
+    0.496,
+    0.8954,
+    1.1795
+   ],
+   "parts": [
+    "BoarMount_Bedroll",
+    "BoarMount_BedrollStraps",
+    "BoarMount_Blanket",
+    "BoarMount_BlanketTrim",
+    "BoarMount_Body",
+    "BoarMount_Conchos",
+    "BoarMount_Crest",
+    "BoarMount_Ears",
+    "BoarMount_EarsInner",
+    "BoarMount_EyeShine",
+    "BoarMount_EyesNostrils",
+    "BoarMount_Harness",
+    "BoarMount_Leg_FL",
+    "BoarMount_Leg_FL_Hoof",
+    "BoarMount_Leg_FR",
+    "BoarMount_Leg_FR_Hoof",
+    "BoarMount_Leg_RL",
+    "BoarMount_Leg_RL_Hoof",
+    "BoarMount_Leg_RR",
+    "BoarMount_Leg_RR_Hoof",
+    "BoarMount_Reins",
+    "BoarMount_Saddle",
+    "BoarMount_Snout",
+    "BoarMount_Stirrups",
+    "BoarMount_Stitching",
+    "BoarMount_Tail",
+    "BoarMount_Tusks"
+   ],
+   "materials": [
+    "M_Brass",
+    "M_Cloth_Cream",
+    "M_Eye_White",
+    "M_Face",
+    "M_Fur",
+    "M_Fur_Dark",
+    "M_Hoof",
+    "M_Leather",
+    "M_Paint_Amber",
+    "M_Paint_Red",
+    "M_Snout",
+    "M_Steel",
+    "M_Tusk"
+   ],
+   "pivots": {
+    "BoarMount_Body": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_Snout": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_EyesNostrils": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_EyeShine": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_Tusks": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_Ears": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_EarsInner": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_Crest": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_Tail": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_Leg_FL": [
+     0.205,
+     -0.36,
+     0.62
+    ],
+    "BoarMount_Leg_FL_Hoof": [
+     0.205,
+     -0.36,
+     0.62
+    ],
+    "BoarMount_Leg_FR": [
+     -0.205,
+     -0.36,
+     0.62
+    ],
+    "BoarMount_Leg_FR_Hoof": [
+     -0.205,
+     -0.36,
+     0.62
+    ],
+    "BoarMount_Leg_RL": [
+     0.195,
+     0.43,
+     0.62
+    ],
+    "BoarMount_Leg_RL_Hoof": [
+     0.195,
+     0.43,
+     0.62
+    ],
+    "BoarMount_Leg_RR": [
+     -0.195,
+     0.43,
+     0.62
+    ],
+    "BoarMount_Leg_RR_Hoof": [
+     -0.195,
+     0.43,
+     0.62
+    ],
+    "BoarMount_Blanket": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_BlanketTrim": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_Saddle": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_Stitching": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_Harness": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_Reins": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_Bedroll": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_BedrollStraps": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_Stirrups": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "BoarMount_Conchos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "VendingMachine": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/VendingMachine/VendingMachine.fbx",
+   "tris": 21478,
+   "size_m": [
+    0.9554,
+    0.8175,
+    1.85
+   ],
+   "bbox_min": [
+    -0.4777,
+    -0.8225,
+    0.0
+   ],
+   "bbox_max": [
+    0.4777,
+    -0.005,
+    1.85
+   ],
+   "parts": [
+    "VendingMachine_Cabinet",
+    "VendingMachine_Door",
+    "VendingMachine_Flap",
+    "VendingMachine_Glass",
+    "VendingMachine_Glow",
+    "VendingMachine_Graphics",
+    "VendingMachine_Interior",
+    "VendingMachine_Logo",
+    "VendingMachine_Metal",
+    "VendingMachine_Panel",
+    "VendingMachine_Slots",
+    "VendingMachine_Stock_Alu",
+    "VendingMachine_Stock_CarWhite",
+    "VendingMachine_Stock_Label",
+    "VendingMachine_Stock_Paint_Orange",
+    "VendingMachine_Stock_Prod_Blue",
+    "VendingMachine_Stock_Prod_Green",
+    "VendingMachine_Stock_Prod_Yellow",
+    "VendingMachine_Trim"
+   ],
+   "materials": [
+    "M_Alu",
+    "M_CarWhite",
+    "M_GlassClear",
+    "M_Label",
+    "M_LampGlow",
+    "M_Paint_Orange",
+    "M_Polymer",
+    "M_Prod_Blue",
+    "M_Prod_Green",
+    "M_Prod_Yellow",
+    "M_Vend_Dark",
+    "M_Vend_Inner",
+    "M_Vend_Red"
+   ],
+   "pivots": {
+    "VendingMachine_Cabinet": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Door": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Panel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Interior": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Glass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Trim": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Flap": [
+     0.0,
+     -0.768,
+     0.441
+    ],
+    "VendingMachine_Metal": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Slots": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Glow": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Graphics": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Logo": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Stock_Prod_Green": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Stock_Alu": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Stock_Label": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Stock_Paint_Orange": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Stock_Prod_Blue": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Stock_CarWhite": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "VendingMachine_Stock_Prod_Yellow": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Dumpster": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Dumpster/Dumpster.fbx",
+   "tris": 10404,
+   "size_m": [
+    1.4387,
+    1.1489,
+    1.241
+   ],
+   "bbox_min": [
+    -0.7193,
+    -0.5819,
+    0.0
+   ],
+   "bbox_max": [
+    0.7193,
+    0.567,
+    1.241
+   ],
+   "parts": [
+    "Dumpster_Body",
+    "Dumpster_BrakePedals",
+    "Dumpster_Hardware",
+    "Dumpster_Label",
+    "Dumpster_LabelText",
+    "Dumpster_Lid",
+    "Dumpster_Wheel_BL",
+    "Dumpster_Wheel_BL_Hub",
+    "Dumpster_Wheel_BR",
+    "Dumpster_Wheel_BR_Hub",
+    "Dumpster_Wheel_FL",
+    "Dumpster_Wheel_FL_Hub",
+    "Dumpster_Wheel_FR",
+    "Dumpster_Wheel_FR_Hub"
+   ],
+   "materials": [
+    "M_Bin_Green",
+    "M_Bin_Lid",
+    "M_Label",
+    "M_Paint_Orange",
+    "M_Polymer",
+    "M_Rubber",
+    "M_SteelDark",
+    "M_Vend_Inner"
+   ],
+   "pivots": {
+    "Dumpster_Body": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Dumpster_Lid": [
+     0.0,
+     0.545,
+     1.121
+    ],
+    "Dumpster_Hardware": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Dumpster_BrakePedals": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Dumpster_Wheel_FL": [
+     -0.43,
+     -0.34,
+     0.095
+    ],
+    "Dumpster_Wheel_FL_Hub": [
+     -0.43,
+     -0.34,
+     0.095
+    ],
+    "Dumpster_Wheel_BL": [
+     -0.43,
+     0.34,
+     0.095
+    ],
+    "Dumpster_Wheel_BL_Hub": [
+     -0.43,
+     0.34,
+     0.095
+    ],
+    "Dumpster_Wheel_FR": [
+     0.43,
+     -0.34,
+     0.095
+    ],
+    "Dumpster_Wheel_FR_Hub": [
+     0.43,
+     -0.34,
+     0.095
+    ],
+    "Dumpster_Wheel_BR": [
+     0.43,
+     0.34,
+     0.095
+    ],
+    "Dumpster_Wheel_BR_Hub": [
+     0.43,
+     0.34,
+     0.095
+    ],
+    "Dumpster_Label": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Dumpster_LabelText": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Bench": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Bench/Bench.fbx",
+   "tris": 8484,
+   "size_m": [
+    1.8,
+    0.6091,
+    0.8906
+   ],
+   "bbox_min": [
+    -0.9,
+    -0.3061,
+    -0.0034
+   ],
+   "bbox_max": [
+    0.9,
+    0.303,
+    0.8872
+   ],
+   "parts": [
+    "Bench_BackSlats",
+    "Bench_Bolts",
+    "Bench_Frame_L",
+    "Bench_Frame_R",
+    "Bench_Rail",
+    "Bench_SeatSlats"
+   ],
+   "materials": [
+    "M_Iron",
+    "M_WoodBench"
+   ],
+   "pivots": {
+    "Bench_Frame_L": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Bench_Frame_R": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Bench_Rail": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Bench_SeatSlats": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Bench_BackSlats": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Bench_Bolts": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "StreetLamp": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/StreetLamp/StreetLamp.fbx",
+   "tris": 5494,
+   "size_m": [
+    0.464,
+    1.752,
+    4.632
+   ],
+   "bbox_min": [
+    -0.232,
+    -1.52,
+    0.0
+   ],
+   "bbox_max": [
+    0.232,
+    0.232,
+    4.632
+   ],
+   "parts": [
+    "StreetLamp_Base",
+    "StreetLamp_Diffuser",
+    "StreetLamp_Hardware",
+    "StreetLamp_Head",
+    "StreetLamp_Pole"
+   ],
+   "materials": [
+    "M_Iron",
+    "M_LampGlow",
+    "M_SteelDark"
+   ],
+   "pivots": {
+    "StreetLamp_Base": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "StreetLamp_Pole": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "StreetLamp_Head": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "StreetLamp_Diffuser": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "StreetLamp_Hardware": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "ACUnit": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/ACUnit/ACUnit.fbx",
+   "tris": 9372,
+   "size_m": [
+    0.974,
+    0.419,
+    1.005
+   ],
+   "bbox_min": [
+    -0.42,
+    -0.42,
+    0.0
+   ],
+   "bbox_max": [
+    0.554,
+    -0.001,
+    1.005
+   ],
+   "parts": [
+    "ACUnit_Badge",
+    "ACUnit_BadgeMark",
+    "ACUnit_Brackets",
+    "ACUnit_Casing",
+    "ACUnit_Fan",
+    "ACUnit_Grille",
+    "ACUnit_Pads",
+    "ACUnit_PipeInsulation",
+    "ACUnit_Pipes",
+    "ACUnit_RearFins",
+    "ACUnit_Shroud"
+   ],
+   "materials": [
+    "M_AC_Shell",
+    "M_Copper",
+    "M_Label",
+    "M_Rubber",
+    "M_Shelf_Accent",
+    "M_Steel",
+    "M_SteelDark",
+    "M_Vend_Dark"
+   ],
+   "pivots": {
+    "ACUnit_Casing": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ACUnit_Shroud": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ACUnit_Fan": [
+     -0.115,
+     -0.34,
+     0.715
+    ],
+    "ACUnit_Grille": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ACUnit_RearFins": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ACUnit_Brackets": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ACUnit_Pads": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ACUnit_Pipes": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ACUnit_PipeInsulation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ACUnit_Badge": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ACUnit_BadgeMark": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Shelf": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Shelf/Shelf.fbx",
+   "tris": 5664,
+   "size_m": [
+    1.016,
+    0.494,
+    2.0
+   ],
+   "bbox_min": [
+    -0.508,
+    -0.496,
+    0.0
+   ],
+   "bbox_max": [
+    0.508,
+    -0.002,
+    2.0
+   ],
+   "parts": [
+    "Shelf_BackPanel",
+    "Shelf_Base",
+    "Shelf_Board_1",
+    "Shelf_Board_2",
+    "Shelf_Board_3",
+    "Shelf_Board_4",
+    "Shelf_Header",
+    "Shelf_HeaderText",
+    "Shelf_KickPlate",
+    "Shelf_PriceStrips",
+    "Shelf_PriceTags",
+    "Shelf_UprightSlots",
+    "Shelf_Uprights"
+   ],
+   "materials": [
+    "M_Label",
+    "M_Shelf_Accent",
+    "M_Shelf_White",
+    "M_SteelDark",
+    "M_Vend_Dark"
+   ],
+   "pivots": {
+    "Shelf_Uprights": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_UprightSlots": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_BackPanel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Base": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_KickPlate": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Board_1": [
+     0.0,
+     -0.034,
+     0.5
+    ],
+    "Shelf_Board_2": [
+     0.0,
+     -0.034,
+     0.86
+    ],
+    "Shelf_Board_3": [
+     0.0,
+     -0.034,
+     1.18
+    ],
+    "Shelf_Board_4": [
+     0.0,
+     -0.034,
+     1.5
+    ],
+    "Shelf_PriceStrips": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_PriceTags": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Header": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_HeaderText": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Shelf_Stocked": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Shelf_Stocked/Shelf_Stocked.fbx",
+   "tris": 32768,
+   "size_m": [
+    1.016,
+    0.494,
+    2.0
+   ],
+   "bbox_min": [
+    -0.508,
+    -0.496,
+    0.0
+   ],
+   "bbox_max": [
+    0.508,
+    -0.002,
+    2.0
+   ],
+   "parts": [
+    "Shelf_BackPanel",
+    "Shelf_Base",
+    "Shelf_Board_1",
+    "Shelf_Board_2",
+    "Shelf_Board_3",
+    "Shelf_Board_4",
+    "Shelf_Header",
+    "Shelf_HeaderText",
+    "Shelf_KickPlate",
+    "Shelf_PriceStrips",
+    "Shelf_PriceTags",
+    "Shelf_Stock_Alu",
+    "Shelf_Stock_CarWhite",
+    "Shelf_Stock_Label",
+    "Shelf_Stock_Paint_Orange",
+    "Shelf_Stock_Prod_Blue",
+    "Shelf_Stock_Prod_Green",
+    "Shelf_Stock_Prod_Pink",
+    "Shelf_Stock_Prod_Purple",
+    "Shelf_Stock_Prod_Yellow",
+    "Shelf_UprightSlots",
+    "Shelf_Uprights"
+   ],
+   "materials": [
+    "M_Alu",
+    "M_CarWhite",
+    "M_Label",
+    "M_Paint_Orange",
+    "M_Prod_Blue",
+    "M_Prod_Green",
+    "M_Prod_Pink",
+    "M_Prod_Purple",
+    "M_Prod_Yellow",
+    "M_Shelf_Accent",
+    "M_Shelf_White",
+    "M_SteelDark",
+    "M_Vend_Dark"
+   ],
+   "pivots": {
+    "Shelf_Uprights": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_UprightSlots": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_BackPanel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Base": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_KickPlate": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Board_1": [
+     0.0,
+     -0.034,
+     0.5
+    ],
+    "Shelf_Board_2": [
+     0.0,
+     -0.034,
+     0.86
+    ],
+    "Shelf_Board_3": [
+     0.0,
+     -0.034,
+     1.18
+    ],
+    "Shelf_Board_4": [
+     0.0,
+     -0.034,
+     1.5
+    ],
+    "Shelf_PriceStrips": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_PriceTags": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Header": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_HeaderText": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Stock_Prod_Yellow": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Stock_Label": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Stock_Prod_Pink": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Stock_Prod_Blue": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Stock_CarWhite": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Stock_Prod_Green": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Stock_Alu": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Stock_Paint_Orange": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Shelf_Stock_Prod_Purple": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Product_Can": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Product_Can/Product_Can.fbx",
+   "tris": 508,
+   "size_m": [
+    0.0674,
+    0.0674,
+    0.1212
+   ],
+   "bbox_min": [
+    -0.0337,
+    -0.0337,
+    0.0
+   ],
+   "bbox_max": [
+    0.0337,
+    0.0337,
+    0.1212
+   ],
+   "parts": [
+    "Product_Can_Body",
+    "Product_Can_Label",
+    "Product_Can_Top"
+   ],
+   "materials": [
+    "M_Alu",
+    "M_Label",
+    "M_Prod_Green"
+   ],
+   "pivots": {
+    "Product_Can_Body": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Product_Can_Top": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Product_Can_Label": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Product_Bottle": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Product_Bottle/Product_Bottle.fbx",
+   "tris": 596,
+   "size_m": [
+    0.0692,
+    0.0692,
+    0.23
+   ],
+   "bbox_min": [
+    -0.0346,
+    -0.0346,
+    0.0
+   ],
+   "bbox_max": [
+    0.0346,
+    0.0346,
+    0.23
+   ],
+   "parts": [
+    "Product_Bottle_Body",
+    "Product_Bottle_Cap",
+    "Product_Bottle_Label"
+   ],
+   "materials": [
+    "M_CarWhite",
+    "M_Label",
+    "M_Prod_Blue"
+   ],
+   "pivots": {
+    "Product_Bottle_Body": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Product_Bottle_Cap": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Product_Bottle_Label": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Product_BoxTall": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Product_BoxTall/Product_BoxTall.fbx",
+   "tris": 524,
+   "size_m": [
+    0.19,
+    0.0704,
+    0.27
+   ],
+   "bbox_min": [
+    -0.095,
+    -0.0364,
+    0.0
+   ],
+   "bbox_max": [
+    0.095,
+    0.034,
+    0.27
+   ],
+   "parts": [
+    "Product_BoxTall_Body",
+    "Product_BoxTall_Logo",
+    "Product_BoxTall_Panel"
+   ],
+   "materials": [
+    "M_Label",
+    "M_Prod_Pink",
+    "M_Prod_Yellow"
+   ],
+   "pivots": {
+    "Product_BoxTall_Body": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Product_BoxTall_Panel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Product_BoxTall_Logo": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  },
+  "Product_BoxSmall": {
+   "file": "/home/dani.pp/Downloads/job/Roblox_Props_Portfolio/export/Product_BoxSmall/Product_BoxSmall.fbx",
+   "tris": 124,
+   "size_m": [
+    0.142,
+    0.098,
+    0.08
+   ],
+   "bbox_min": [
+    -0.071,
+    -0.049,
+    0.0
+   ],
+   "bbox_max": [
+    0.071,
+    0.049,
+    0.08
+   ],
+   "parts": [
+    "Product_BoxSmall_Band",
+    "Product_BoxSmall_Body"
+   ],
+   "materials": [
+    "M_Prod_Purple",
+    "M_Prod_Yellow"
+   ],
+   "pivots": {
+    "Product_BoxSmall_Body": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Product_BoxSmall_Band": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "bones": 0
+  }
+ },
+ "materials": {
+  "M_AC_Shell": {
+   "hex": "#E6E4DE",
+   "metallic": 0.0,
+   "roughness": 0.42
+  },
+  "M_Alu": {
+   "hex": "#C3C8CE",
+   "metallic": 1.0,
+   "roughness": 0.28
+  },
+  "M_Bin_Green": {
+   "hex": "#3E7A55",
+   "metallic": 0.0,
+   "roughness": 0.55
+  },
+  "M_Bin_Lid": {
+   "hex": "#2F6044",
+   "metallic": 0.0,
+   "roughness": 0.5
+  },
+  "M_Bone": {
+   "hex": "#E3D8BE",
+   "metallic": 0.0,
+   "roughness": 0.62
+  },
+  "M_Bone_Dark": {
+   "hex": "#3A302A",
+   "metallic": 0.0,
+   "roughness": 0.7
+  },
+  "M_Brass": {
+   "hex": "#C39A4C",
+   "metallic": 1.0,
+   "roughness": 0.32
+  },
+  "M_CarPaint": {
+   "hex": "#2C8C99",
+   "metallic": 0.3,
+   "roughness": 0.28
+  },
+  "M_CarWhite": {
+   "hex": "#E7E8E4",
+   "metallic": 0.0,
+   "roughness": 0.35
+  },
+  "M_Chrome": {
+   "hex": "#C9CFD7",
+   "metallic": 1.0,
+   "roughness": 0.16
+  },
+  "M_Cloth_Blue": {
+   "hex": "#3D5E9C",
+   "metallic": 0.0,
+   "roughness": 0.75
+  },
+  "M_Cloth_Cream": {
+   "hex": "#DCCFB2",
+   "metallic": 0.0,
+   "roughness": 0.75
+  },
+  "M_Cloth_Gray": {
+   "hex": "#4B505B",
+   "metallic": 0.0,
+   "roughness": 0.8
+  },
+  "M_Copper": {
+   "hex": "#B86E45",
+   "metallic": 1.0,
+   "roughness": 0.34
+  },
+  "M_Eye_White": {
+   "hex": "#F4F1EA",
+   "metallic": 0.0,
+   "roughness": 0.25
+  },
+  "M_Face": {
+   "hex": "#231C1C",
+   "metallic": 0.0,
+   "roughness": 0.45
+  },
+  "M_Fur": {
+   "hex": "#5B3E2C",
+   "metallic": 0.0,
+   "roughness": 0.85
+  },
+  "M_Fur_Dark": {
+   "hex": "#3A291E",
+   "metallic": 0.0,
+   "roughness": 0.9
+  },
+  "M_Gem_Blue": {
+   "hex": "#2F6FD6",
+   "metallic": 0.0,
+   "roughness": 0.1
+  },
+  "M_Gem_Green": {
+   "hex": "#2FA56E",
+   "metallic": 0.0,
+   "roughness": 0.1
+  },
+  "M_Gem_Red": {
+   "hex": "#D3344A",
+   "metallic": 0.0,
+   "roughness": 0.1
+  },
+  "M_Glass": {
+   "hex": "#A9CBD8",
+   "metallic": 0.0,
+   "roughness": 0.05
+  },
+  "M_GlassClear": {
+   "hex": "#D3E6EC",
+   "metallic": 0.0,
+   "roughness": 0.04
+  },
+  "M_Glow": {
+   "hex": "#FF7A3A",
+   "metallic": 0.0,
+   "roughness": 0.4
+  },
+  "M_Gold": {
+   "hex": "#E3B23C",
+   "metallic": 1.0,
+   "roughness": 0.26
+  },
+  "M_GuardHead": {
+   "hex": "#F2C9A2",
+   "metallic": 0.0,
+   "roughness": 0.55
+  },
+  "M_Gunmetal": {
+   "hex": "#4A515B",
+   "metallic": 1.0,
+   "roughness": 0.36
+  },
+  "M_HeadLight": {
+   "hex": "#F6F3E4",
+   "metallic": 0.0,
+   "roughness": 0.15
+  },
+  "M_Hoof": {
+   "hex": "#2B2523",
+   "metallic": 0.0,
+   "roughness": 0.6
+  },
+  "M_Interior": {
+   "hex": "#5B616B",
+   "metallic": 0.0,
+   "roughness": 0.7
+  },
+  "M_Iron": {
+   "hex": "#2E3533",
+   "metallic": 0.6,
+   "roughness": 0.45
+  },
+  "M_Label": {
+   "hex": "#F3F1EA",
+   "metallic": 0.0,
+   "roughness": 0.5
+  },
+  "M_LampGlow": {
+   "hex": "#FFE3AE",
+   "metallic": 0.0,
+   "roughness": 0.35
+  },
+  "M_Leather": {
+   "hex": "#3B261B",
+   "metallic": 0.0,
+   "roughness": 0.62
+  },
+  "M_Mannequin": {
+   "hex": "#B9BDC3",
+   "metallic": 0.0,
+   "roughness": 0.6
+  },
+  "M_Paint_Amber": {
+   "hex": "#D9982C",
+   "metallic": 0.0,
+   "roughness": 0.48
+  },
+  "M_Paint_OD": {
+   "hex": "#56603F",
+   "metallic": 0.25,
+   "roughness": 0.5
+  },
+  "M_Paint_Orange": {
+   "hex": "#E2702B",
+   "metallic": 0.0,
+   "roughness": 0.45
+  },
+  "M_Paint_Red": {
+   "hex": "#A8352C",
+   "metallic": 0.0,
+   "roughness": 0.48
+  },
+  "M_Paint_Teal": {
+   "hex": "#2E8A84",
+   "metallic": 0.0,
+   "roughness": 0.42
+  },
+  "M_Polymer": {
+   "hex": "#2C3035",
+   "metallic": 0.0,
+   "roughness": 0.58
+  },
+  "M_Polymer_Tan": {
+   "hex": "#A08763",
+   "metallic": 0.0,
+   "roughness": 0.6
+  },
+  "M_Prod_Blue": {
+   "hex": "#2F73D0",
+   "metallic": 0.0,
+   "roughness": 0.3
+  },
+  "M_Prod_Green": {
+   "hex": "#45A863",
+   "metallic": 0.0,
+   "roughness": 0.42
+  },
+  "M_Prod_Pink": {
+   "hex": "#E36A93",
+   "metallic": 0.0,
+   "roughness": 0.42
+  },
+  "M_Prod_Purple": {
+   "hex": "#7656C4",
+   "metallic": 0.0,
+   "roughness": 0.42
+  },
+  "M_Prod_Yellow": {
+   "hex": "#F0BE2E",
+   "metallic": 0.0,
+   "roughness": 0.42
+  },
+  "M_Rubber": {
+   "hex": "#1C1E21",
+   "metallic": 0.0,
+   "roughness": 0.8
+  },
+  "M_Rust": {
+   "hex": "#6E4630",
+   "metallic": 0.45,
+   "roughness": 0.78
+  },
+  "M_Seat": {
+   "hex": "#3C4048",
+   "metallic": 0.0,
+   "roughness": 0.85
+  },
+  "M_Shelf_Accent": {
+   "hex": "#2F6FB5",
+   "metallic": 0.0,
+   "roughness": 0.45
+  },
+  "M_Shelf_White": {
+   "hex": "#E1E3E5",
+   "metallic": 0.2,
+   "roughness": 0.4
+  },
+  "M_Shell_Red": {
+   "hex": "#B23A2E",
+   "metallic": 0.0,
+   "roughness": 0.4
+  },
+  "M_Skin": {
+   "hex": "#E9B98F",
+   "metallic": 0.0,
+   "roughness": 0.55
+  },
+  "M_SlimeBlue": {
+   "hex": "#3F8FE3",
+   "metallic": 0.0,
+   "roughness": 0.1
+  },
+  "M_SlimeMouth": {
+   "hex": "#14304F",
+   "metallic": 0.0,
+   "roughness": 0.3
+  },
+  "M_Snout": {
+   "hex": "#6E4A3E",
+   "metallic": 0.0,
+   "roughness": 0.6
+  },
+  "M_Steel": {
+   "hex": "#8E99A8",
+   "metallic": 1.0,
+   "roughness": 0.3
+  },
+  "M_SteelDark": {
+   "hex": "#646C78",
+   "metallic": 1.0,
+   "roughness": 0.4
+  },
+  "M_TailLight": {
+   "hex": "#C42E2B",
+   "metallic": 0.0,
+   "roughness": 0.2
+  },
+  "M_Tusk": {
+   "hex": "#EEE4C9",
+   "metallic": 0.0,
+   "roughness": 0.4
+  },
+  "M_Vend_Dark": {
+   "hex": "#26292E",
+   "metallic": 0.0,
+   "roughness": 0.45
+  },
+  "M_Vend_Inner": {
+   "hex": "#D6D9DC",
+   "metallic": 0.0,
+   "roughness": 0.55
+  },
+  "M_Vend_Red": {
+   "hex": "#C73A35",
+   "metallic": 0.0,
+   "roughness": 0.36
+  },
+  "M_Wood": {
+   "hex": "#87573A",
+   "metallic": 0.0,
+   "roughness": 0.58
+  },
+  "M_WoodBench": {
+   "hex": "#9C6B45",
+   "metallic": 0.0,
+   "roughness": 0.55
+  }
+ }
+}
