@@ -1,2 +1,4 @@
-art/out/
+art/out/local/
 __pycache__/
+*.rbxlx.lock
+*.rbxl.lock
