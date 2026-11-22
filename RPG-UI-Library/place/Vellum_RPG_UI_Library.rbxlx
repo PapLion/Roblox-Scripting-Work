@@ -1,0 +1,24 @@
+<roblox version="4">
+<Item class="ReplicatedStorage" referent="RBX3"><Properties><string name="Name">ReplicatedStorage</string></Properties>
+  <Item class="Folder" referent="RBX2"><Properties><string name="Name">Vellum</string></Properties>
+    <Item class="ModuleScript" referent="RBX1"><Properties><string name="Name">Theme</string><ProtectedString name="Source"><![CDATA[-- placeholder
+return {}
+]]></ProtectedString></Properties>
+    </Item>
+  </Item>
+</Item>
+<Item class="StarterPlayer" referent="RBX10"><Properties><string name="Name">StarterPlayer</string></Properties>
+  <Item class="StarterPlayerScripts" referent="RBX9"><Properties><string name="Name">StarterPlayerScripts</string></Properties>
+    <Item class="Folder" referent="RBX8"><Properties><string name="Name">VellumGallery</string></Properties>
+      <Item class="LocalScript" referent="RBX7"><Properties><string name="Name">Main</string><ProtectedString name="Source"><![CDATA[-- placeholder
+print("[Vellum] gallery client boot")
+]]></ProtectedString></Properties>
+      </Item>
+    </Item>
+  </Item>
+</Item>
+<Item class="Players" referent="RBX11"><Properties><string name="Name">Players</string><bool name="CharacterAutoLoads">false</bool></Properties>
+</Item>
+<Item class="Lighting" referent="RBX12"><Properties><string name="Name">Lighting</string><Color3 name="Ambient"><R>0.5</R><G>0.5</G><B>0.5</B></Color3></Properties>
+</Item>
+</roblox>
