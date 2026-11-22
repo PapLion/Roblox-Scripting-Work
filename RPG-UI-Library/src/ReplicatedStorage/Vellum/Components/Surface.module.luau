@@ -71,8 +71,8 @@ end
 -- opts: title, subtitle, size, padding, corners (bool), tone ("leather" | "deep"), parent
 function Surface.panel(opts: { [string]: any }): (Frame, Frame)
 	local pad = opts.padding or 18
-	-- The gilt frame sits exactly on the panel bounds and the leather fill is inset under it: nothing
-	-- overhangs with a positive offset, so auto-sized panels measure correctly.
+	-- Auto-sized frames also measure scale-sized descendants that carry offsets, so every decoration here
+	-- is exactly scale (1, 1) with no offset: the gilt frame covers the fill's rounded edge.
 	local panel = Create.box({
 		Name = opts.name or "Panel",
 		Size = opts.size or UDim2.fromOffset(360, 240),
@@ -86,24 +86,15 @@ function Surface.panel(opts: { [string]: any }): (Frame, Frame)
 		Name = "Fill",
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(4, 4),
-		Size = UDim2.new(1, -8, 1, -8),
+		Size = UDim2.fromScale(1, 1),
 		ZIndex = 0,
 		Parent = panel,
 	}, {
-		Create.corner(7),
+		Create.corner(10),
+		Create.stroke(C.void, 3, 0.4),
 		Create.gradient(if opts.tone == "deep" then { C.leather1, C.leather0 } else { C.leather2, C.leather1, C.leather0 }, 90),
 	})
 	Atlas.texture("leather", { Name = "Grain", ImageColor3 = C.goldPale, ImageTransparency = 0.9, ZIndex = 0, Parent = fill })
-	-- inner shadow along the frame for depth
-	Create("Frame", {
-		Name = "Vignette",
-		BackgroundTransparency = 1,
-		Size = UDim2.new(1, -2, 1, -2),
-		Position = UDim2.fromOffset(1, 1),
-		ZIndex = 0,
-		Parent = fill,
-	}, { Create.corner(6), Create.stroke(C.void, 3, 0.55) })
 	Atlas.image("chrome", "frame_gilt", {
 		Name = "Frame",
 		Size = UDim2.fromScale(1, 1),
@@ -175,8 +166,7 @@ function Surface.parchment(opts: { [string]: any }): (Frame, Frame)
 	Create("Frame", {
 		Name = "Edge",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, -4, 1, -4),
-		Position = UDim2.fromOffset(2, 2),
+		Size = UDim2.fromScale(1, 1),
 		Parent = card,
 	}, { Create.corner(4), Create.stroke(C.vellumEdge, 3, 0.55) })
 	local content = Create.box({

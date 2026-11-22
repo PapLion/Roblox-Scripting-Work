@@ -28,10 +28,9 @@ function Feedback.tooltipCard(props: { [string]: any }): Frame
 		Name = "Fill",
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(2, 2),
-		Size = UDim2.new(1, -4, 1, -4),
+		Size = UDim2.fromScale(1, 1),
 		Parent = card,
-	}, { Create.corner(6), Create.gradient({ C.leather2, C.leather0 }, 90) })
+	}, { Create.corner(7), Create.gradient({ C.leather2, C.leather0 }, 90) })
 	Atlas.image("chrome", "frame_thin", { Name = "Frame", Size = UDim2.fromScale(1, 1), SliceScale = 0.6, ZIndex = 3, Parent = card })
 	local body = Create.box({ Name = "Body", Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 2, Parent = card }, {
 		Create.padding(13, 15, 13, 15),
@@ -340,7 +339,7 @@ function Feedback.toastCard(props: { [string]: any }): Frame
 		Size = UDim2.fromOffset(props.width or 320, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
 	}, { Create.corner(6), Create.gradient({ C.leather2, C.leather1 }, 90), Create.stroke(C.void, 2, 0.2) })
-	Create("Frame", { Name = "Accent", BackgroundColor3 = tone.color, BorderSizePixel = 0, Size = UDim2.new(0, 4, 1, -12), Position = UDim2.fromOffset(6, 6), Parent = card }, { Create.corner(2) })
+	Create("Frame", { Name = "Accent", BackgroundColor3 = tone.color, BorderSizePixel = 0, Size = UDim2.new(0, 4, 1, 0), Parent = card }, { Create.corner(2) })
 	local body = Create.box({ Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, Parent = card }, { Create.padding(12, 14, 12, 64), Create.list("y", 3) })
 	local badge = Create.box({ Name = "Badge", Size = UDim2.fromOffset(38, 38), Position = UDim2.fromOffset(18, 10), Parent = card })
 	if props.icon then
@@ -358,7 +357,7 @@ function Feedback.toastCard(props: { [string]: any }): Frame
 	if props.text then
 		Surface.text({ role = "small", text = props.text, color = C.textSoft, wrap = true, rich = true, LayoutOrder = 2, Parent = body })
 	end
-	local timer = Create("Frame", { Name = "Timer", BackgroundColor3 = tone.color, BackgroundTransparency = 0.4, BorderSizePixel = 0, AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 6, 1, -3), Size = UDim2.new(1, -12, 0, 2), Visible = false, Parent = card })
+	local timer = Create("Frame", { Name = "Timer", BackgroundColor3 = tone.color, BackgroundTransparency = 0.4, BorderSizePixel = 0, AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 6, 1, 0), Size = UDim2.new(1, -12, 0, 2), Visible = false, Parent = card })
 	local _ = timer
 	return card
 end
