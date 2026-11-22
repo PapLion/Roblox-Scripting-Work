@@ -1,0 +1,30 @@
+OK   Axe            tris  2474/ 2474  size(m) 0.247 x 0.055 x 0.842  parts  5  mats 5  uv yes  1-mat/part yes
+OK   Sword          tris  3018/ 3018  size(m) 0.226 x 0.038 x 0.976  parts  6  mats 3  uv yes  1-mat/part yes
+OK   Hammer         tris  1378/ 1378  size(m) 0.195 x 0.062 x 0.414  parts  6  mats 4  uv yes  1-mat/part yes
+OK   Pickaxe        tris  2232/ 2232  size(m) 0.495 x 0.062 x 0.815  parts  6  mats 5  uv yes  1-mat/part yes
+OK   Shield         tris  3340/ 3340  size(m) 0.612 x 0.096 x 0.612  parts  6  mats 6  uv yes  1-mat/part yes
+OK   Dagger         tris  2112/ 2112  size(m) 0.097 x 0.031 x 0.345  parts  6  mats 4  uv yes  1-mat/part yes
+OK   Dagger_Sheath  tris   570/  570  size(m) 0.052 x 0.019 x 0.214  parts  2  mats 2  uv yes  1-mat/part yes
+OK   Pistol         tris  3654/ 3654  size(m) 0.220 x 0.033 x 0.150  parts  7  mats 4  uv yes  1-mat/part yes
+OK   Rifle          tris  5186/ 5186  size(m) 0.749 x 0.059 x 0.257  parts 12  mats 6  uv yes  1-mat/part yes
+OK   Shotgun        tris  6344/ 6344  size(m) 0.998 x 0.066 x 0.149  parts 12  mats 7  uv yes  1-mat/part yes
+OK   AmmoBox        tris  1768/ 1768  size(m) 0.307 x 0.144 x 0.190  parts  8  mats 5  uv yes  1-mat/part yes
+OK   Guard          tris 12854/12854  size(m) 1.170 x 0.543 x 1.684  parts 35  mats 10  uv yes  1-mat/part yes  bones 51
+OK   SlimeBoss      tris  7402/ 7402  size(m) 1.720 x 1.351 x 1.281  parts  6  mats 6  uv yes  1-mat/part yes
+OK   Skeleton       tris 18390/18390  size(m) 0.612 x 0.313 x 1.412  parts 23  mats 6  uv yes  1-mat/part yes
+OK   Skeleton_Sword tris   364/  364  size(m) 0.146 x 0.042 x 0.629  parts  2  mats 2  uv yes  1-mat/part yes
+OK   Skeleton_Buckler tris  1682/ 1682  size(m) 0.350 x 0.072 x 0.350  parts  3  mats 3  uv yes  1-mat/part yes
+OK   Car            tris 25156/25156  size(m) 1.820 x 3.756 x 1.484  parts 26  mats 10  uv yes  1-mat/part yes
+OK   BoarMount      tris 26334/26334  size(m) 0.992 x 2.017 x 1.180  parts 27  mats 13  uv yes  1-mat/part yes
+OK   VendingMachine tris 21478/21478  size(m) 0.955 x 0.818 x 1.850  parts 19  mats 13  uv yes  1-mat/part yes
+OK   Dumpster       tris 10404/10404  size(m) 1.439 x 1.149 x 1.241  parts 14  mats 8  uv yes  1-mat/part yes
+OK   Bench          tris  8484/ 8484  size(m) 1.800 x 0.609 x 0.891  parts  6  mats 2  uv yes  1-mat/part yes
+OK   StreetLamp     tris  5494/ 5494  size(m) 0.464 x 1.752 x 4.632  parts  5  mats 3  uv yes  1-mat/part yes
+OK   ACUnit         tris  9372/ 9372  size(m) 0.974 x 0.419 x 1.005  parts 11  mats 8  uv yes  1-mat/part yes
+OK   Shelf          tris  5664/ 5664  size(m) 1.016 x 0.494 x 2.000  parts 13  mats 5  uv yes  1-mat/part yes
+OK   Shelf_Stocked  tris 32768/32768  size(m) 1.016 x 0.494 x 2.000  parts 22  mats 13  uv yes  1-mat/part yes
+OK   Product_Can    tris   508/  508  size(m) 0.067 x 0.067 x 0.121  parts  3  mats 3  uv yes  1-mat/part yes
+OK   Product_Bottle tris   596/  596  size(m) 0.069 x 0.069 x 0.230  parts  3  mats 3  uv yes  1-mat/part yes
+OK   Product_BoxTall tris   524/  524  size(m) 0.190 x 0.070 x 0.270  parts  3  mats 3  uv yes  1-mat/part yes
+OK   Product_BoxSmall tris   124/  124  size(m) 0.142 x 0.098 x 0.080  parts  2  mats 2  uv yes  1-mat/part yes
+ALL_OK=True
