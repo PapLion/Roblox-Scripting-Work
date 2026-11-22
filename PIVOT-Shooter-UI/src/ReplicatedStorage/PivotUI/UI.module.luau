@@ -1095,7 +1095,7 @@ function UI.modal(opts)
 	api.body = body
 	-- height follows the content (measured from the body's list layout) up to maxBody, then it scrolls
 	local fitConn
-	local function fit()
+	local function contentHeight()
 		local layout = body:FindFirstChildOfClass("UIListLayout")
 		local h = layout and layout.AbsoluteContentSize.Y or 0
 		if not layout then
@@ -1105,7 +1105,36 @@ function UI.modal(opts)
 				end
 			end
 		end
-		body.Size = UDim2.new(1, 0, 0, math.min(h + 2, maxBody))
+		return h
+	end
+	-- auto-sized wrapped text never grows past its container: a body that is still short (it starts at 0)
+	-- keeps a paragraph at one line and the rest is cut. When that happens the body is measured once more
+	-- at full height and then trimmed to the content (truncated single-line labels are left alone).
+	local function clipped()
+		for _, d in body:GetDescendants() do
+			if d:IsA("TextLabel") and d.TextWrapped and d.AutomaticSize ~= Enum.AutomaticSize.None and d.Visible and not d.TextFits then
+				return true
+			end
+		end
+		return false
+	end
+	local remeasuring = false
+	local function fit()
+		if remeasuring then
+			return
+		end
+		body.Size = UDim2.new(1, 0, 0, math.min(contentHeight() + 2, maxBody))
+		if clipped() then
+			remeasuring = true
+			body.Size = UDim2.new(1, 0, 0, maxBody)
+			task.spawn(function()
+				task.wait()
+				remeasuring = false
+				if body.Parent then
+					body.Size = UDim2.new(1, 0, 0, math.min(contentHeight() + 2, maxBody))
+				end
+			end)
+		end
 	end
 	body.ChildAdded:Connect(function(c)
 		if c:IsA("UIListLayout") then
@@ -1201,19 +1230,30 @@ function UI.modal(opts)
 	task.delay(0.05, fit)
 	Util.tween(layer, Theme.motion.base, { BackgroundTransparency = 0.42 })
 	Util.tween(scale, Theme.motion.base, { Scale = 1 })
-	-- text that sized itself while the card was still scaling in was measured short: once the card is at
-	-- full size, every auto-sized label is measured again so nothing ends up clipped or crowding its neighbour
+	-- text that sized itself while the card was still scaling in was measured short (a wrapped paragraph
+	-- could keep one line and clip the rest): once the card is at full size, every auto-sized label is
+	-- measured again. Roblox only re-measures if AutomaticSize really changes for a frame, so each label
+	-- holds its current size for that frame (no visible jump) and then gets its AutomaticSize back.
 	task.delay(Util.reducedMotion and 0 or Theme.motion.base + 0.03, function()
 		if not card.Parent then
 			return
 		end
+		local held = {}
 		for _, d in card:GetDescendants() do
 			if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.AutomaticSize ~= Enum.AutomaticSize.None then
-				local a = d.AutomaticSize
+				table.insert(held, { d, d.AutomaticSize, d.Size })
+				d.Size = UDim2.fromOffset(d.AbsoluteSize.X, d.AbsoluteSize.Y)
 				d.AutomaticSize = Enum.AutomaticSize.None
-				d.AutomaticSize = a
 			end
 		end
+		task.wait()
+		for _, h in held do
+			if h[1].Parent then
+				h[1].Size = h[3]
+				h[1].AutomaticSize = h[2]
+			end
+		end
+		task.defer(fit)
 	end)
 	if GuiService.SelectedObject then
 		previousSelection = GuiService.SelectedObject
