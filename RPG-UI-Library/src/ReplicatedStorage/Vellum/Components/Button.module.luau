@@ -12,7 +12,7 @@ local Surface = require(script.Parent.Surface)
 local C = Theme.color
 local Button = {}
 
-export type Variant = "primary" | "secondary" | "ghost" | "danger" | "arcane"
+export type Variant = "primary" | "secondary" | "ghost" | "danger" | "arcane" | "ink"
 export type Size = "small" | "medium" | "large"
 
 type Look = { fill: { Color3 }, text: Color3, stroke: Color3, strokeT: number, inset: Color3, insetT: number }
@@ -21,6 +21,8 @@ local LOOK: { [string]: Look } = {
 	primary = { fill = { C.goldPale, C.goldBright, C.gold, C.goldDeep }, text = C.ink, stroke = C.void, strokeT = 0.1, inset = C.goldPale, insetT = 0.25 },
 	secondary = { fill = { C.leather3, C.leather2, C.leather1 }, text = C.goldBright, stroke = C.gold, strokeT = 0.15, inset = C.gold, insetT = 0.75 },
 	ghost = { fill = { C.leather2, C.leather2 }, text = C.goldBright, stroke = C.gold, strokeT = 1, inset = C.gold, insetT = 1 },
+	-- for parchment surfaces: ink text, appears on hover like ghost
+	ink = { fill = { C.vellumDeep, C.vellumDeep }, text = C.ink, stroke = C.inkSoft, strokeT = 1, inset = C.ink, insetT = 1 },
 	danger = { fill = { Color3.fromHex("D0574F"), Color3.fromHex("A8332D"), Color3.fromHex("6E1A18") }, text = C.goldPale, stroke = C.void, strokeT = 0.1, inset = Color3.fromHex("F2A097"), insetT = 0.55 },
 	arcane = { fill = { Color3.fromHex("7FE3D7"), Color3.fromHex("3FAEA2"), Color3.fromHex("1E5D58") }, text = C.void, stroke = C.void, strokeT = 0.1, inset = Color3.fromHex("CFF7F2"), insetT = 0.4 },
 }
@@ -103,7 +105,7 @@ function Button.new(scope: any, props: Props)
 	local sheen = Create("Frame", {
 		Name = "Sheen",
 		BackgroundColor3 = Color3.new(1, 1, 1),
-		BackgroundTransparency = if variant == "ghost" then 1 else 0.82,
+		BackgroundTransparency = if variant == "ghost" or variant == "ink" then 1 else 0.82,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(3, 3),
 		Size = UDim2.new(1, -6, 0.42, -3),
@@ -223,21 +225,21 @@ function Button.new(scope: any, props: Props)
 			return c
 		end
 		gradient.Color = seq(look.fill, f)
-		if variant == "ghost" then
+		if variant == "ghost" or variant == "ink" then
 			body.BackgroundTransparency = if disabled then 1 elseif s.pressed then 0.55 elseif s.hover or s.focused or s.selected then 0.75 else 1
 			stroke.Transparency = if s.hover or s.focused or s.selected then 0.45 else 1
 		else
 			body.BackgroundTransparency = 0
 			stroke.Transparency = if disabled then 0.6 else look.strokeT
 		end
-		local textColor = if disabled then C.textFaint else look.text
+		local textColor = if disabled then (if variant == "ink" then C.inkFaint else C.textFaint) else look.text
 		label.TextColor3 = textColor
 		if icon then
 			icon.ImageColor3 = textColor
 		end
 		spinner.ImageColor3 = textColor
 		inset.ImageTransparency = if disabled then 0.9 else look.insetT
-		sheen.Visible = not disabled and not s.pressed and variant ~= "ghost"
+		sheen.Visible = not disabled and not s.pressed and variant ~= "ghost" and variant ~= "ink"
 		Motion.tween(press, { Scale = if s.pressed then 0.96 else 1 }, Theme.motion.fast, nil, nil, "press")
 		local dy = if s.pressed then 1 elseif (s.hover and not disabled) then -1 else 0
 		Motion.tween(body, { Position = UDim2.fromOffset(0, dy) }, Theme.motion.fast, nil, nil, "lift")
@@ -259,6 +261,9 @@ function Button.new(scope: any, props: Props)
 		end
 		if loading and not spinConn then
 			spinConn = scope:connect(game:GetService("RunService").RenderStepped, function(dt)
+				if Motion.paused then
+					return
+				end
 				spinner.Rotation = (spinner.Rotation + dt * 300) % 360
 			end)
 		elseif not loading and spinConn then

@@ -69,7 +69,7 @@ function Slot.new(scope: any, props: Props)
 
 	local item: any = nil
 	local n = 0
-	local flags = { selected = false, dim = false, drop = nil :: string?, lifted = false, locked = props.locked == true, equipped = props.equipped == true }
+	local flags = { selected = false, dim = false, drop = false :: string | boolean, lifted = false, locked = props.locked == true, equipped = props.equipped == true }
 	local ctl
 
 	local function paint(s)

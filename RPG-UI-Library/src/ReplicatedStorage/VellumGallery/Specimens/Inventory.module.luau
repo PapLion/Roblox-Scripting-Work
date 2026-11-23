@@ -18,7 +18,7 @@ return {
 		family = "inventory",
 		title = "Satchel inventory",
 		blurb = "Drag-and-drop slots with stack merging, category filters, search, sorting, comparison tooltips and a context menu.",
-		size = Vector2.new(586, 600),
+		size = Vector2.new(586, 540),
 		build = function(scope, parent)
 			local inv = Inventory.new(scope)
 			inv.Instance.AnchorPoint = Vector2.new(0.5, 0)
@@ -59,6 +59,9 @@ return {
 					end },
 					{ label = "Context menu", run = function()
 						inv.openMenu(4)
+					end },
+					{ label = "Inspect Galeheart Bow", run = function()
+						inv.cells[10].tip.show()
 					end },
 				},
 			}

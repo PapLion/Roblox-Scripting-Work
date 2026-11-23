@@ -15,6 +15,9 @@ export type Store<S> = {
 local Store = {}
 Store.__index = Store
 
+-- A patch value meaning "remove this key": nil cannot be expressed in a patch table.
+Store.NONE = table.freeze({})
+
 local function deepCopy(v: any): any
 	if type(v) ~= "table" then
 		return v
@@ -49,7 +52,11 @@ end
 function Store:set(patch)
 	local nextState = table.clone(self._state)
 	for k, v in patch do
-		nextState[k] = v
+		if v == Store.NONE then
+			nextState[k] = nil
+		else
+			nextState[k] = v
+		end
 	end
 	self:_commit(nextState)
 end

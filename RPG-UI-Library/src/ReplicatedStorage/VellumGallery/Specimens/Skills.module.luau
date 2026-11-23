@@ -92,7 +92,7 @@ return {
 		family = "skills",
 		title = "Ability cards",
 		blurb = "Ability detail cards: school and ultimate tags, rank pips, cost, cooldown, cast time, range and a locked ability.",
-		size = Vector2.new(960, 300),
+		size = Vector2.new(960, 214),
 		build = function(scope, parent)
 			local row = Create.box({ Size = UDim2.fromScale(1, 1), Parent = parent }, { Create.list("x", 30, Enum.HorizontalAlignment.Center, Enum.VerticalAlignment.Center) })
 			for i, id in { "kindle", "meteor", "wolf" } do

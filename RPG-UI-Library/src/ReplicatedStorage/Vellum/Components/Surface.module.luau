@@ -54,6 +54,10 @@ function Surface.text(props: { [string]: any }): TextLabel
 		p.Size = UDim2.new(1, 0, 0, 0)
 		p.TextYAlignment = Enum.TextYAlignment.Top
 	end
+	if props.Size ~= nil and props.AutomaticSize == nil and not props.wrap then
+		-- an explicit Size means a fixed box (truncation, alignment); auto-size only when asked
+		p.AutomaticSize = Enum.AutomaticSize.None
+	end
 	for k, v in props do
 		if k ~= "role" and k ~= "color" and k ~= "size" and k ~= "text" and k ~= "wrap" and k ~= "rich" then
 			p[k] = v
@@ -71,12 +75,12 @@ end
 -- opts: title, subtitle, size, padding, corners (bool), tone ("leather" | "deep"), parent
 function Surface.panel(opts: { [string]: any }): (Frame, Frame)
 	local pad = opts.padding or 18
-	-- Auto-sized frames also measure scale-sized descendants that carry offsets, so every decoration here
-	-- is exactly scale (1, 1) with no offset: the gilt frame covers the fill's rounded edge.
+	-- Auto-sized frames also measure scale-sized descendants that carry offsets or UIStrokes, so every
+	-- decoration here is exactly scale (1, 1) with no offset and no stroke: the gilt frame covers the
+	-- fill's rounded edge.
 	local panel = Create.box({
 		Name = opts.name or "Panel",
 		Size = opts.size or UDim2.fromOffset(360, 240),
-		AutomaticSize = opts.autoSize,
 		Position = opts.position,
 		AnchorPoint = opts.anchor,
 		LayoutOrder = opts.layoutOrder or 0,
@@ -91,7 +95,6 @@ function Surface.panel(opts: { [string]: any }): (Frame, Frame)
 		Parent = panel,
 	}, {
 		Create.corner(10),
-		Create.stroke(C.void, 3, 0.4),
 		Create.gradient(if opts.tone == "deep" then { C.leather1, C.leather0 } else { C.leather2, C.leather1, C.leather0 }, 90),
 	})
 	Atlas.texture("leather", { Name = "Grain", ImageColor3 = C.goldPale, ImageTransparency = 0.9, ZIndex = 0, Parent = fill })
@@ -105,11 +108,31 @@ function Surface.panel(opts: { [string]: any }): (Frame, Frame)
 
 	local content = Create.box({
 		Name = "Content",
-		Size = if opts.autoSize then UDim2.new(1, 0, 0, 0) else UDim2.fromScale(1, 1),
-		AutomaticSize = opts.autoSize,
+		Size = UDim2.fromScale(1, 1),
 		ZIndex = 2,
 		Parent = panel,
 	}, { Create.padding(pad + 4, pad + 2, pad + 2, pad + 2) })
+	if opts.autoSize then
+		-- Height from the content's UIListLayout (exact extent of the direct children). AutomaticSize would
+		-- also count decorative overflow deep in the tree (glows, rays) and leave dead space.
+		local function hook(layout: UIListLayout)
+			local function fit()
+				local unit = panel.Size.X.Offset
+				local scale = if unit > 0 and panel.AbsoluteSize.X > 0 then panel.AbsoluteSize.X / unit else 1
+				local padding = content:FindFirstChildOfClass("UIPadding") :: UIPadding
+				local h = layout.AbsoluteContentSize.Y / scale + padding.PaddingTop.Offset + padding.PaddingBottom.Offset
+				panel.Size = UDim2.new(panel.Size.X, UDim.new(0, math.ceil(h)))
+			end
+			layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fit)
+			panel:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+			task.defer(fit)
+		end
+		content.ChildAdded:Connect(function(c)
+			if c:IsA("UIListLayout") then
+				hook(c)
+			end
+		end)
+	end
 
 	if opts.title then
 		local plaque = Atlas.image("chrome", "plaque", {
@@ -162,13 +185,6 @@ function Surface.parchment(opts: { [string]: any }): (Frame, Frame)
 		Create.stroke(C.vellumEdge, 2, 0),
 	})
 	Atlas.texture("parchment", { Name = "Fibres", Parent = card })
-	-- burnt inner edge
-	Create("Frame", {
-		Name = "Edge",
-		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
-		Parent = card,
-	}, { Create.corner(4), Create.stroke(C.vellumEdge, 3, 0.55) })
 	local content = Create.box({
 		Name = "Content",
 		Size = UDim2.fromScale(1, 1),

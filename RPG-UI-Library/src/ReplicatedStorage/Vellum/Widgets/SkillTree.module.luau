@@ -279,6 +279,9 @@ function SkillTree.new(scope: any, props: { [string]: any }?)
 	-- pulse animation for learnable nodes
 	local t0 = os.clock()
 	scope:connect(game:GetService("RunService").Heartbeat, function()
+		if Motion.paused then
+			return
+		end
 		local a = 0.55 + 0.25 * math.sin((os.clock() - t0) * 3.2)
 		for _, v in views do
 			if v.learnable then
@@ -289,7 +292,7 @@ function SkillTree.new(scope: any, props: { [string]: any }?)
 
 	-- detail pane
 	local pane = Surface.well({ Name = "Detail", Position = UDim2.fromOffset(3 * BRANCH_W + 2 * GAP + 18, 54), Size = UDim2.new(1, -(3 * BRANCH_W + 2 * GAP + 18), 0, 520), Parent = content })
-	local paneBody = Create.box({ Size = UDim2.fromScale(1, 1), Parent = pane }, { Create.padding(16), Create.list("y", 10, Enum.HorizontalAlignment.Center) })
+	local paneBody = Create.box({ Name = "Body", Size = UDim2.fromScale(1, 1), Parent = pane }, { Create.padding(16), Create.list("y", 10, Enum.HorizontalAlignment.Center) })
 	local detailIcon = Create.box({ Size = UDim2.fromOffset(84, 84), LayoutOrder = 1, Parent = paneBody })
 	local dGlow = Atlas.image("chrome", "glow", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromScale(1.6, 1.6), ImageTransparency = 0.6, Parent = detailIcon })
 	local dBg = Atlas.image("chrome", "disc", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromScale(0.84, 0.84), ImageColor3 = C.leather0, ZIndex = 2, Parent = detailIcon })
@@ -302,7 +305,7 @@ function SkillTree.new(scope: any, props: { [string]: any }?)
 	local dNow = Surface.text({ role = "body", text = "", size = 14, color = C.text, wrap = true, rich = true, LayoutOrder = 6, Parent = paneBody })
 	local dNext = Surface.text({ role = "small", text = "", color = C.arcane, wrap = true, rich = true, LayoutOrder = 7, Parent = paneBody })
 	local reqBox = Create.box({ Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 8, Parent = paneBody }, { Create.list("y", 5) })
-	local actions = Create.box({ AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 16, 1, -16), Size = UDim2.new(1, -32, 0, 88), Parent = pane }, { Create.list("y", 8) })
+	local actions = Create.box({ Name = "Actions", AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 16, 1, -16), Size = UDim2.new(1, -32, 0, 88), Parent = pane }, { Create.list("y", 8) })
 	local learnBtn = Button.new(scope, { text = "Learn", variant = "arcane", icon = "plus", fill = true, layoutOrder = 1, onClick = function()
 		local st = Store.copy(store:get())
 		local id = st.selected
@@ -312,6 +315,7 @@ function SkillTree.new(scope: any, props: { [string]: any }?)
 			Motion.pop(gemPop, 0.2)
 		end
 	end })
+	learnBtn.Instance.Name = "Learn"
 	learnBtn.Instance.Parent = actions
 	local row2 = Create.box({ Size = UDim2.new(1, 0, 0, 34), LayoutOrder = 2, Parent = actions }, { Create.list("x", 8) })
 	local unlearnBtn = Button.new(scope, { text = "Unlearn", variant = "ghost", size = "small", icon = "minus", width = 110, layoutOrder = 1, onClick = function()

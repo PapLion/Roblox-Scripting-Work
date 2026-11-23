@@ -51,7 +51,7 @@ return {
 		family = "character",
 		title = "Status effects",
 		blurb = "Blessings and afflictions with live radial timers, stacks and tooltips; refreshed effects add a stack.",
-		size = Vector2.new(470, 210),
+		size = Vector2.new(470, 100),
 		build = function(scope, parent)
 			local holder = Create.box({ Size = UDim2.fromScale(1, 1), Parent = parent }, { Create.list("y", 14) })
 			local eff = Character.effects(scope, { effects = { "blessed", "haste", "regen", "ward", "burning", "poison", "chilled" }, layoutOrder = 1 })

@@ -112,7 +112,8 @@ function Controls.toggle(scope: any, props: { [string]: any })
 		Size = UDim2.new(if props.width then 0 else 1, props.width or 0, 0, 34),
 		LayoutOrder = props.layoutOrder or 0,
 	}))
-	local label = Surface.text({ role = "body", text = props.label or "", color = C.text, Position = UDim2.fromScale(0, 0.5), AnchorPoint = Vector2.new(0, 0.5), Parent = root })
+	local labelColor = props.labelColor or C.text
+	local label = Surface.text({ role = "body", text = props.label or "", color = labelColor, Position = UDim2.fromScale(0, 0.5), AnchorPoint = Vector2.new(0, 0.5), Parent = root })
 	local track = Create("Frame", {
 		Name = "Track",
 		AnchorPoint = Vector2.new(1, 0.5),
@@ -142,7 +143,7 @@ function Controls.toggle(scope: any, props: { [string]: any })
 		Motion.tween(fill, { BackgroundTransparency = if on then 0 else 1 }, M.base)
 		Motion.tween(rune, { ImageTransparency = if on and not s.disabled then 0 else 1 }, M.base)
 		track:FindFirstChildOfClass("UIStroke").Color = if s.disabled then C.seam elseif on or s.hover then C.arcane else C.goldDeep
-		label.TextColor3 = if s.disabled then C.textGhost else C.text
+		label.TextColor3 = if s.disabled then C.textGhost else labelColor
 		knob.BackgroundTransparency = if s.disabled then 0.5 else 0
 		fr.Visible = s.focused and not s.disabled
 	end

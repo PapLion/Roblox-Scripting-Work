@@ -121,7 +121,7 @@ function DragDrop:_move(p: Vector2)
 			a.hover.highlight(nil)
 		end
 		a.hover = t
-		if t then
+		if t and t.gui ~= a.source then
 			t.highlight(if t.accepts(a.payload) then "valid" else "invalid")
 		end
 	end

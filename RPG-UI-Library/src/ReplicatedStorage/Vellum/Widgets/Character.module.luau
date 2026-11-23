@@ -187,6 +187,9 @@ function Character.effects(scope: any, props: { [string]: any })
 		handle.frozen = v
 	end
 	scope:connect(RunService.Heartbeat, function(dt)
+		if Motion.paused then
+			return
+		end
 		for id, e in live do
 			if not handle.frozen then
 				e.left -= dt

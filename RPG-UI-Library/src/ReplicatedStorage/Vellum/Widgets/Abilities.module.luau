@@ -175,6 +175,9 @@ function Abilities.bar(scope: any, props: { [string]: any }?)
 
 	-- per-frame visuals; mana regenerates slowly so the out-of-mana state is recoverable
 	scope:connect(RunService.Heartbeat, function(dt)
+		if Motion.paused then
+			return
+		end
 		if handle.frozen then
 			return
 		end

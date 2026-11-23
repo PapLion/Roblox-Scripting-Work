@@ -6,6 +6,9 @@ local Theme = require(script.Parent.Parent.Theme)
 
 local Motion = {}
 Motion.reduced = false
+-- Paused: per-frame animations (pulses, rays, spinners, timers) hold still. Used by tiled captures so
+-- every tile shows the same instant.
+Motion.paused = false
 
 local running: { [Instance]: { [string]: Tween } } = setmetatable({}, { __mode = "k" }) :: any
 

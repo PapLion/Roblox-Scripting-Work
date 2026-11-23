@@ -189,7 +189,7 @@ function Inventory.new(scope: any, props: { [string]: any }?)
 	local catButtons = {}
 	for i, cat in Inventory.categories do
 		local b = Controls.iconButton(scope, { icon = cat.glyph, size = 38, layoutOrder = i, onClick = function()
-			store:set({ filter = cat.id, picked = nil })
+			store:set({ filter = cat.id, picked = Store.NONE })
 		end })
 		b.Instance.Parent = cats
 		catButtons[cat.id] = b
@@ -198,7 +198,7 @@ function Inventory.new(scope: any, props: { [string]: any }?)
 		end, { side = "above" })
 	end
 	local search = Controls.search(scope, { placeholder = "Search…", layoutOrder = 2, changed = function(t)
-		store:set({ query = t, picked = nil })
+		store:set({ query = t, picked = Store.NONE })
 	end })
 	search.Instance.Parent = bar
 	Create.flex().Parent = search.Instance
@@ -220,7 +220,7 @@ function Inventory.new(scope: any, props: { [string]: any }?)
 			local st = Store.copy(store:get())
 			Inventory.sort(st, Inventory.sorts[i])
 			st.sortIndex = i
-			st.picked = nil
+			st.picked = Store.NONE
 			store:set(st)
 		end,
 	})
@@ -336,15 +336,16 @@ function Inventory.new(scope: any, props: { [string]: any }?)
 					store:set({ picked = i })
 				end
 			elseif st.picked == i then
-				store:set({ picked = nil })
+				store:set({ picked = Store.NONE })
 			else
 				local s2 = Store.copy(st)
 				Inventory.move(s2, st.picked, i)
-				s2.picked = nil
+				s2.picked = Store.NONE
 				store:set(s2)
 				cell.slot:pop()
 			end
 		end })
+		slot.Instance.Name = `Cell{c}`
 		slot.Instance.Parent = gridHolder
 		cell.slot = slot
 		cells[c] = cell
@@ -363,8 +364,9 @@ function Inventory.new(scope: any, props: { [string]: any }?)
 			return g
 		end, {
 			onStart = function()
+				Feedback.hideTooltips()
 				slot:set({ lifted = true })
-				store:set({ picked = nil })
+				store:set({ picked = Store.NONE })
 			end,
 			onEnd = function()
 				slot:set({ lifted = false })
@@ -377,7 +379,8 @@ function Inventory.new(scope: any, props: { [string]: any }?)
 				return cell.index ~= nil and cell.index ~= payload.from
 			end,
 			highlight = function(state)
-				slot:set({ drop = state })
+				-- false, not nil: nil keys vanish from the patch table
+				slot:set({ drop = state or false })
 			end,
 			drop = function(payload)
 				local s2 = Store.copy(store:get())
@@ -387,7 +390,7 @@ function Inventory.new(scope: any, props: { [string]: any }?)
 			end,
 		})
 		-- tooltip with comparison
-		Feedback.tooltip(scope, slot.Instance, function()
+		cell.tip = Feedback.tooltip(scope, slot.Instance, function()
 			local i = cell.index
 			local e = i and store:get().slots[i]
 			if not e or drag:isDragging() then
@@ -473,7 +476,7 @@ function Inventory.new(scope: any, props: { [string]: any }?)
 	render(store:get())
 	scope:connect(UserInputService.InputBegan, function(input)
 		if input.KeyCode == Enum.KeyCode.Escape and store:get().picked then
-			store:set({ picked = nil })
+			store:set({ picked = Store.NONE })
 		end
 	end)
 

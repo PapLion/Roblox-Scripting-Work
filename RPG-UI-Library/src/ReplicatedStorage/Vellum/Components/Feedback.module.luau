@@ -19,6 +19,22 @@ local M = Theme.motion
 local Z = Theme.z
 local Feedback = {}
 
+-- Overlay coordination: open menus and dialogs suppress hover tooltips, and hide any that are showing.
+local liveTips: { [() -> ()]: boolean } = {}
+local suppress = 0
+function Feedback.hideTooltips()
+	for hide in liveTips do
+		hide()
+	end
+end
+local function holdTooltips(scope: any)
+	suppress += 1
+	Feedback.hideTooltips()
+	scope:defer(function()
+		suppress -= 1
+	end)
+end
+
 ---------------------------------------------------------------- Tooltip
 -- A dark card with a thin gilt frame. props: title, body, hint, width, accent
 function Feedback.tooltipCard(props: { [string]: any }): Frame
@@ -66,6 +82,9 @@ function Feedback.tooltip(scope: any, target: GuiObject, build: () -> GuiObject,
 	end
 	local function show()
 		hide()
+		if suppress > 0 then
+			return
+		end
 		local s = scope:child()
 		showing = s
 		local card = build()
@@ -104,7 +123,11 @@ function Feedback.tooltip(scope: any, target: GuiObject, build: () -> GuiObject,
 	scope:connect(target.MouseLeave, hide)
 	scope:connect(target.SelectionGained, queue)
 	scope:connect(target.SelectionLost, hide)
-	scope:defer(hide)
+	liveTips[hide] = true
+	scope:defer(function()
+		liveTips[hide] = nil
+		hide()
+	end)
 	return { show = show, hide = hide }
 end
 
@@ -112,6 +135,7 @@ end
 -- items: { {text, icon?, danger?, disabled?, hint?, run?} | "-" }. at: overlay-local position.
 function Feedback.contextMenu(scope: any, at: Vector2, items: { any }, title: string?)
 	local s = scope:child()
+	holdTooltips(s)
 	local overlay = Layers.get()
 	local catcher = s:add(Create("TextButton", { Name = "MenuCatcher", Text = "", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = Z.popover, Parent = overlay }))
 	local w = 210
@@ -195,6 +219,7 @@ end
 -- confirm {text, variant}, cancel {text}, onConfirm, onCancel, width, extra (builder fn(parent))
 function Feedback.modal(scope: any, props: { [string]: any })
 	local s = scope:child()
+	holdTooltips(s)
 	local overlay = Layers.get()
 	local dim = s:add(Create("TextButton", {
 		Name = "ModalDim",
@@ -213,7 +238,6 @@ function Feedback.modal(scope: any, props: { [string]: any })
 	panel.AnchorPoint = Vector2.new(0.5, 0.5)
 	panel.Position = UDim2.fromScale(0.5, 0.5)
 	s:add(panel)
-	content.Size = UDim2.new(1, 0, 0, 0)
 	for _, d in panel:GetDescendants() do
 		if d:IsA("GuiObject") then
 			d.ZIndex += Z.modal
@@ -310,6 +334,13 @@ function Feedback.modal(scope: any, props: { [string]: any })
 	s:connect(UserInputService.InputBegan, function(input)
 		if input.KeyCode == Enum.KeyCode.Escape or input.KeyCode == Enum.KeyCode.Backspace then
 			close(false)
+		elseif (input.KeyCode == Enum.KeyCode.Return or input.KeyCode == Enum.KeyCode.KeypadEnter)
+			and GuiService.SelectedObject == nil
+			and not UserInputService:GetFocusedTextBox()
+			and not confirmBtn.controller.state.disabled
+		then
+			-- Enter confirms when nothing has keyboard focus (with focus, the focused button handles it)
+			close(true)
 		end
 	end)
 	handle.close = close
@@ -616,6 +647,9 @@ function Feedback.spinner(scope: any, props: { [string]: any })
 		Surface.text({ role = "lore", text = props.text, color = C.textSoft, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, size + 8), Parent = root })
 	end
 	scope:connect(RunService.RenderStepped, function(dt)
+		if Motion.paused then
+			return
+		end
 		rune.Rotation = (rune.Rotation + dt * (props.speed or 240)) % 360
 	end)
 	return { Instance = root }

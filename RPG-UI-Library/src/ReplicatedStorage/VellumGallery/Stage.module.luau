@@ -50,10 +50,27 @@ function Stage.mount(host: GuiObject | LayerCollector, specimen: any, opts: { [s
 		Parent = area,
 	})
 
+	-- Tiled capture: the slot becomes a clipped window filled with the canvas colour; the canvas is
+	-- pinned top-left at a fixed scale and moved by setTile(), so a specimen larger than the viewport is
+	-- rendered in pieces that tools/capture/tiles.py stitches back together.
+	if o.tiled then
+		slot.BackgroundTransparency = 0
+		slot.BackgroundColor3 = Stage.CANVAS
+		-- No ClipsDescendants here: the engine culls large clipped 9-slice / gradient frames that cross the
+		-- clip edge. Matte masks around the window hide the overflow instead.
+		for _, r in {
+			{ UDim2.new(0, 0, 0, 0), UDim2.new(1, 0, 0, ins[2]) },
+			{ UDim2.new(0, 0, 1, -ins[4]), UDim2.new(1, 0, 0, ins[4] + 2000) },
+			{ UDim2.new(0, 0, 0, 0), UDim2.new(0, ins[1], 1, 2000) },
+			{ UDim2.new(1, -ins[3], 0, 0), UDim2.new(0, ins[3] + 2000, 1, 2000) },
+		} do
+			Create("Frame", { Name = "Mask", BorderSizePixel = 0, BackgroundColor3 = Stage.MATTE, Position = r[1], Size = r[2], ZIndex = 20000, Parent = area })
+		end
+	end
 	local canvas = Create("Frame", {
 		Name = "Canvas",
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
+		AnchorPoint = if o.tiled then Vector2.zero else Vector2.new(0.5, 0.5),
+		Position = if o.tiled then UDim2.new() else UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromOffset(natural.X, natural.Y),
 		BackgroundColor3 = Stage.CANVAS,
 		BorderSizePixel = 0,
@@ -92,6 +109,10 @@ function Stage.mount(host: GuiObject | LayerCollector, specimen: any, opts: { [s
 
 	local function fit()
 		local avail = slot.AbsoluteSize
+		if o.tiled then
+			scale.Scale = o.fixedScale or 2
+			return
+		end
 		if avail.X <= 0 then
 			return
 		end
@@ -104,7 +125,43 @@ function Stage.mount(host: GuiObject | LayerCollector, specimen: any, opts: { [s
 	local ctx = { capture = o.capture == true, stageScope = scope }
 	local built = specimen.build(scope, content, ctx) or {}
 
+	-- six marker squares above the window's top-right corner encode the tile index (63 = done)
+	-- row 1 (lower) = tile index, row 2 (upper) = batch job index
+	local markers, jobMarkers = {}, {}
+	if o.tiled then
+		for i = 1, 6 do
+			for row, list in { markers, jobMarkers } do
+				list[i] = Create("Frame", {
+					Name = "Marker" .. row .. "_" .. i,
+					BorderSizePixel = 0,
+					AnchorPoint = Vector2.new(1, 1),
+					Position = UDim2.new(1, -(16 + (i - 1) * 24) - ins[3], 0, ins[2] - 16 - (row - 1) * 24),
+					Size = UDim2.fromOffset(16, 16),
+					BackgroundColor3 = Color3.new(0, 0, 0),
+					ZIndex = 20001,
+					Parent = area,
+				})
+			end
+		end
+	end
+	if o.capture then
+		-- input shield: the real pointer must not hover anything while a capture is being taken
+		Create("TextButton", { Name = "CaptureShield", Text = "", AutoButtonColor = false, BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 10000, Parent = area })
+	end
+	local function setTile(tx: number, ty: number)
+		canvas.Position = UDim2.fromOffset(-tx, -ty)
+	end
+	local function marker(index: number, job: number?)
+		for i = 1, 6 do
+			markers[i].BackgroundColor3 = if bit32.extract(index, i - 1) == 1 then Color3.new(1, 1, 1) else Color3.new(0, 0, 0)
+			jobMarkers[i].BackgroundColor3 = if bit32.extract(job or 0, i - 1) == 1 then Color3.new(1, 1, 1) else Color3.new(0, 0, 0)
+		end
+	end
+
 	return {
+		setTile = setTile,
+		marker = marker,
+		slot = slot,
 		scope = scope,
 		canvas = canvas,
 		content = content,
